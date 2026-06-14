@@ -29,7 +29,7 @@ fun UserProfileCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.padding(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
 
@@ -69,7 +69,7 @@ fun UserProfileCard(
                 onClick = { onEditClick() },
                 modifier = Modifier.align(Alignment.TopEnd),
                 ) {
-                Text(text = "Retry")
+                Text(text = "Edit Profile")
             }
         }
 
