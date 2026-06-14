@@ -11,7 +11,8 @@ data class User(
     val countriesList: MutableList<String> = mutableListOf(),
     val followers: Int = 0,
     val numJournals: Int = 0,
-
+    val likes: Int = 0,
+    val friends: MutableList<String> = mutableListOf()
 )
 
 val UserSaver = mapSaver(
