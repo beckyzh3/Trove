@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,17 +25,22 @@ import com.example.trove.User
 @Composable
 fun UserProfileCard(
     user: User,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.padding(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
 
-        Row{
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ){
 
             Column(
-                modifier = modifier.padding(8.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
 
                 UserProfilePicture()
@@ -57,8 +65,11 @@ fun UserProfileCard(
                 )
             }
 
-            OutlinedButton(onClick = { onEditProfile() }) {
-                Text(text = "Retry")
+            OutlinedButton(
+                onClick = { onEditClick() },
+                modifier = Modifier.align(Alignment.TopEnd),
+                ) {
+                Text(text = "Edit Profile")
             }
         }
 
@@ -80,6 +91,7 @@ fun UserProfileCardPreview() {
             numJournals = 3,
             likes = 558
         ),
+        onEditClick = {},
         modifier = Modifier.padding(16.dp)
     )
 }
