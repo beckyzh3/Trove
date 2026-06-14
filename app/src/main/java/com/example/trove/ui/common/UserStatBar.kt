@@ -115,6 +115,6 @@ fun UserStatBarPreview() {
             numJournals = 3,
             likes = 558
         ),
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.fillMaxWidth()
     )
 }
