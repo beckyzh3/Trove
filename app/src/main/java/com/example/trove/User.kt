@@ -3,6 +3,7 @@ package com.example.trove
 import androidx.compose.runtime.saveable.mapSaver
 import kotlinx.serialization.Serializable
 
+
 @Serializable
 data class User(
     val username: String = "",
