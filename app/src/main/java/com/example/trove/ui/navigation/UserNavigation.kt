@@ -19,4 +19,24 @@ fun UserNavigation() {
     }
 
     val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = Home
+    ) {
+        composable<Home> {
+            HomeScreen(
+                user = user,
+                onProfile = {
+                    navController.navigate(Profile)
+                }
+            )
+        }
+
+        composable<Profile> {
+
+        }
+
+    }
+
 }
