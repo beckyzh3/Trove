@@ -10,7 +10,7 @@ data class User(
     val name: String = "",
     val bio: String = "",
     val countriesList: MutableList<String> = mutableListOf(),
-    val friends: MutableList<User> = mutableListOf(),
+    val friends: MutableList<String> = mutableListOf(),
     val numJournals: Int = 0,
     val likes: Int = 0,
 )
@@ -33,11 +33,10 @@ val UserSaver = mapSaver(
             name = map["name"] as String,
             bio = map["bio"] as String,
             countriesList = map["countriesList"] as MutableList<String>,
-            friends = map["friends"] as MutableList<User>,
+            friends = map["friends"] as MutableList<String>,
             numJournals = map["numJournals"] as Int,
             likes = map["likes"] as Int
         )
-
     }
 )
 
