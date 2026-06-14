@@ -10,10 +10,9 @@ data class User(
     val name: String = "",
     val bio: String = "",
     val countriesList: MutableList<String> = mutableListOf(),
-    val followers: Int = 0,
+    val friends: MutableList<User> = mutableListOf(),
     val numJournals: Int = 0,
     val likes: Int = 0,
-    val friends: MutableList<String> = mutableListOf()
 )
 
 val UserSaver = mapSaver(
@@ -23,8 +22,9 @@ val UserSaver = mapSaver(
             "name" to user.name,
             "bio" to user.bio,
             "countriesList" to user.countriesList,
-            "followers" to user.followers,
-            "numJournals" to user.numJournals
+            "friends" to user.friends,
+            "numJournals" to user.numJournals,
+            "likes" to user.likes
         )
     },
     restore = { map ->
@@ -33,8 +33,9 @@ val UserSaver = mapSaver(
             name = map["name"] as String,
             bio = map["bio"] as String,
             countriesList = map["countriesList"] as MutableList<String>,
-            followers = map["followers"] as Int,
-            numJournals = map["numJournals"] as Int
+            friends = map["friends"] as MutableList<User>,
+            numJournals = map["numJournals"] as Int,
+            likes = map["likes"] as Int
         )
 
     }
