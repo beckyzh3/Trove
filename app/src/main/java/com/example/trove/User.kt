@@ -37,7 +37,6 @@ val UserSaver = mapSaver(
             numJournals = map["numJournals"] as Int,
             likes = map["likes"] as Int
         )
-
     }
 )
 
