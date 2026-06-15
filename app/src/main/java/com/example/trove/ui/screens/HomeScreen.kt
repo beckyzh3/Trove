@@ -1,6 +1,7 @@
 package com.example.trove.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -28,7 +29,10 @@ import com.example.trove.ui.theme.TroveTheme
 @Composable
 fun HomeScreen(
     user: User,
-    onProfile: () -> Unit
+    onProfile: () -> Unit,
+    onSearch: () -> Unit,
+    onExplore: () -> Unit,
+    onJournals: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val firstName = user.name.split(" ").firstOrNull() ?: user.name
@@ -39,7 +43,7 @@ fun HomeScreen(
                 title = "Welcome back, $firstName",
                 actions = {
 
-                    IconButton(onClick = { /* Search clicked */ }) {
+                    IconButton(onClick = onSearch) {
                         Icon(painter = painterResource(R.drawable.ic_settings), contentDescription = "Search")
                     }
 
@@ -73,7 +77,8 @@ fun HomeScreen(
                 onValueChange = { searchQuery = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .clickable { onSearch() },
                 placeholder = { Text("Search journals, places and people") },
                 leadingIcon = { 
                     Icon(
@@ -94,7 +99,7 @@ fun HomeScreen(
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterButton("Journals")
+                FilterButton("Journals", onClick = onJournals)
                 FilterButton("Places")
                 FilterButton("People")
             }
@@ -113,7 +118,10 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .clickable {
+                        onExplore()
+                    },
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -147,9 +155,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun FilterButton(label: String) {
+fun FilterButton(
+    label: String,
+    onClick: () -> Unit = {}
+) {
     Button(
-        onClick = { /* Filter clicked */ },
+        onClick = onClick,
         shape = MaterialTheme.shapes.extraLarge,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -371,7 +382,10 @@ fun HomeScreenPreview() {
     TroveTheme {
         HomeScreen(
             user = User(name = "Becky Zheng"),
-            onProfile = {}
+            onProfile = {},
+            onSearch = {},
+            onExplore = {},
+            onJournals = {}
         )
     }
 }
