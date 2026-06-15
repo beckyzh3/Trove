@@ -22,6 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.trove.ui.theme.TroveTheme
 
 @Composable
 fun LoginScreen(
@@ -98,5 +100,16 @@ fun LoginScreen(
                 Text("create account")
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    TroveTheme {
+        LoginScreen(
+            onLoginClick = {},
+            onCreateAccountClick = {}
+        )
     }
 }

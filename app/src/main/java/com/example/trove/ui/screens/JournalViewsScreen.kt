@@ -20,6 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.trove.Journal
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.trove.JournalEntry
+import com.example.trove.ui.theme.TroveTheme
 
 @Composable
 fun JournalViewsScreen(
@@ -166,5 +169,69 @@ fun JournalDetailScreen(
                 }
             }
         }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun JournalViewsScreenPreview() {
+    TroveTheme {
+        JournalViewsScreen(
+            journals = listOf(
+                Journal(
+                    id = "1",
+                    name = "Greece and Italy",
+                    location = "Athens, Rome, Florence",
+                    routeSummary = "Athens → Rome → Florence",
+                    likes = 558
+                ),
+                Journal(
+                    id = "2",
+                    name = "Japan Adventure",
+                    location = "Tokyo, Kyoto, Osaka",
+                    routeSummary = "Tokyo → Kyoto → Osaka",
+                    likes = 240
+                ),
+                Journal(
+                    id = "3",
+                    name = "Summer in Spain",
+                    location = "Barcelona and Madrid",
+                    routeSummary = "Barcelona → Madrid",
+                    likes = 120
+                )
+            ),
+            onJournalClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun JournalDetailScreenPreview() {
+    TroveTheme {
+        JournalDetailScreen(
+            journal = Journal(
+                id = "1",
+                name = "Greece and Italy",
+                location = "Athens, Rome, Florence",
+                routeSummary = "Athens → Rome → Florence",
+                likes = 558,
+                entries = listOf(
+                    JournalEntry(
+                        dateRange = "May 20–22",
+                        text = "Explored Athens and visited the Acropolis."
+                    ),
+                    JournalEntry(
+                        dateRange = "May 23–25",
+                        text = "Traveled to Rome and visited the Colosseum."
+                    ),
+                    JournalEntry(
+                        dateRange = "May 26–28",
+                        text = "Finished the trip in Florence and explored the city."
+                    )
+                )
+            )
+        )
     }
 }
