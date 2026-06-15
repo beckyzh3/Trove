@@ -147,14 +147,21 @@ fun HomeScreen(
 
 @Composable
 fun FilterButton(label: String) {
-    AssistChip(
+    Button(
         onClick = { /* Filter clicked */ },
-        label = { Text(label) },
         shape = MaterialTheme.shapes.extraLarge,
-        colors = AssistChipDefaults.assistChipColors(
-            labelColor = MaterialTheme.colorScheme.secondary
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        ),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.height(40.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge
         )
-    )
+    }
 }
 
 @Composable

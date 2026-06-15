@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.trove.Journal
 import com.example.trove.JournalEntry
+import com.example.trove.JournalSaver
 import com.example.trove.R
 import com.example.trove.ui.common.TroveTopBar
 
@@ -45,7 +46,7 @@ fun JournalFormScreen(
     onAddPhotoClick: () -> Unit
 ) {
 
-    var draftJournal by rememberSaveable {
+    var draftJournal by rememberSaveable(stateSaver = JournalSaver) {
         mutableStateOf(initialJournal)
     }
 
