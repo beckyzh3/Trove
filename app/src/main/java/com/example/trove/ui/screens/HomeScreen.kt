@@ -1,12 +1,369 @@
 package com.example.trove.ui.screens
 
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.trove.Journal
+import com.example.trove.R
 import com.example.trove.User
+import com.example.trove.ui.common.ImagePlaceholder
+import com.example.trove.ui.common.TroveTopBar
+import com.example.trove.ui.theme.TroveTheme
 
 @Composable
 fun HomeScreen(
     user: User,
     onProfile: () -> Unit
-    ) {
+) {
+    var searchQuery by remember { mutableStateOf("") }
+    val firstName = user.name.split(" ").firstOrNull() ?: user.name
 
+    Scaffold(
+        topBar = {
+            TroveTopBar(
+                title = "Welcome back, $firstName",
+                actions = {
+                    IconButton(onClick = { /* Search clicked */ }) {
+                        Icon(painter = painterResource(R.drawable.ic_settings), contentDescription = "Search")
+                    }
+                    IconButton(onClick = { /* Search clicked */ }) {
+                        Icon(painter = painterResource(R.drawable.ic_settings), contentDescription = "Notifications")
+                    }
+                    IconButton(onClick = onProfile) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(MaterialTheme.colorScheme.primary, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = user.name.take(1),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                placeholder = { Text("Search journals, places and people") },
+                leadingIcon = { 
+                    Icon(
+                        painter = painterResource(R.drawable.ic_settings), 
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    ) 
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface
+                )
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterButton("Journals")
+                FilterButton("Places")
+                FilterButton("People")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Friends' Journals Section
+            SectionHeader(title = "Friends' Journals")
+            FriendsJournalsList()
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Explore Section
+            SectionHeader(title = "Explore")
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(horizontal = 16.dp),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    ImagePlaceholder(modifier = Modifier.fillMaxSize())
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f))
+                    )
+                    Text(
+                        "Discover new destinations",
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(24.dp),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Trending Journals
+            SectionHeader(title = "Trending Journals")
+            TrendingJournalsList()
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+fun FilterButton(label: String) {
+    AssistChip(
+        onClick = { /* Filter clicked */ },
+        label = { Text(label) },
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = AssistChipDefaults.assistChipColors(
+            labelColor = MaterialTheme.colorScheme.secondary
+        )
+    )
+}
+
+@Composable
+fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        color = MaterialTheme.colorScheme.primary
+    )
+}
+
+@Composable
+fun FriendsJournalsList() {
+    val dummyFriendsJournals = listOf(
+        Journal(
+            ownerName = "Alice Smith",
+            name = "Paris Getaway",
+            location = "Paris, France",
+            isPublic = true,
+            theme = "Autumn Breeze",
+            likes = 45
+        ),
+        Journal(
+            ownerName = "Bob Jenkins",
+            name = "Desert Trek",
+            location = "Sahara, Morocco",
+            isPublic = false,
+            theme = "Sand & Sun",
+            likes = 32
+        ),
+        Journal(
+            ownerName = "Charlie Day",
+            name = "Alpine Skies",
+            location = "Swiss Alps",
+            isPublic = true,
+            theme = "Cold Peak",
+            likes = 89
+        )
+    )
+
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.height(380.dp)
+    ) {
+        items(dummyFriendsJournals) { journal ->
+            FriendJournalCard(journal)
+        }
+    }
+}
+
+@Composable
+fun FriendJournalCard(journal: Journal) {
+    Card(
+        modifier = Modifier
+            .width(300.dp)
+            .fillMaxHeight(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Top Part
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Profile Photo Placeholder
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = journal.ownerName.take(1),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text(
+                        text = journal.ownerName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = journal.location,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Text(
+                            text = if (journal.isPublic) "Public" else "Private",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = " • ",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                        Text(
+                            text = journal.theme,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1.2f) 
+            ) {
+                ImagePlaceholder(modifier = Modifier.fillMaxSize())
+            }
+        }
+    }
+}
+
+@Composable
+fun TrendingJournalsList() {
+    val dummyJournals = listOf(
+        Journal(name = "Summer in Italy", location = "Rome, Italy", likes = 120),
+        Journal(name = "Japan Adventure", location = "Tokyo, Japan", likes = 85),
+        Journal(name = "Swiss Alps Hike", location = "Zermatt, Switzerland", likes = 210)
+    )
+
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.height(240.dp)
+    ) {
+        items(dummyJournals) { journal ->
+            TrendingJournalCard(journal)
+        }
+    }
+}
+
+@Composable
+fun TrendingJournalCard(journal: Journal) {
+    Card(
+        modifier = Modifier
+            .width(220.dp)
+            .fillMaxHeight(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column {
+            ImagePlaceholder(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+            )
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = journal.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = journal.location,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "❤️ ${journal.likes}",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    TroveTheme {
+        HomeScreen(
+            user = User(name = "Becky Zheng"),
+            onProfile = {}
+        )
+    }
 }
