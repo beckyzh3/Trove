@@ -77,12 +77,6 @@ fun UserStatBar(
                 modifier = Modifier.weight(1f)
             )
 
-            VerticalDivider(
-                modifier = Modifier.height(50.dp),
-                thickness = 2.dp,
-                color = Color.Gray
-            )
-
         }
     }
 }

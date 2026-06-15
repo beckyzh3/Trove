@@ -125,9 +125,12 @@ fun UserNavigation() {
             composable<Home> {
                 HomeScreen(
                     user = user,
+                    onExplore = {},
+                    onJournals = {},
                     onProfile = {
                         navController.navigate(Profile)
-                    }
+                    },
+                    onSearch = {}
                 )
             }
 
