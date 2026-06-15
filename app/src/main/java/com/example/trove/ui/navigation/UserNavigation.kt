@@ -7,7 +7,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,7 +48,7 @@ fun UserNavigation() {
                 NavigationBarItem(
                     icon = { Icon(painterResource(R.drawable.ic_home), contentDescription = "Home") },
                     label = { Text("Home") },
-                    selected = currentDestination?.hierarchy?.any { it.hasRoute<Home>() } == true,
+                    selected = currentDestination?.hasRoute<Home>() == true,
                     onClick = {
                         navController.navigate(Home) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -61,7 +60,7 @@ fun UserNavigation() {
                 NavigationBarItem(
                     icon = { Icon(painterResource(R.drawable.ic_explore), contentDescription = "Explore") },
                     label = { Text("Explore") },
-                    selected = currentDestination?.hierarchy?.any { it.hasRoute<Explore>() } == true,
+                    selected = currentDestination?.hasRoute<Explore>() == true,
                     onClick = {
                         navController.navigate(Explore) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -73,7 +72,7 @@ fun UserNavigation() {
                 NavigationBarItem(
                     icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = "Add") },
                     label = { Text("Add") },
-                    selected = currentDestination?.hierarchy?.any { it.hasRoute<CreateJournal>() } == true,
+                    selected = currentDestination?.hasRoute<CreateJournal>() == true,
                     onClick = {
                         navController.navigate(CreateJournal) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -85,7 +84,7 @@ fun UserNavigation() {
                 NavigationBarItem(
                     icon = { Icon(painterResource(R.drawable.ic_map), contentDescription = "Map") },
                     label = { Text("Map") },
-                    selected = currentDestination?.hierarchy?.any { it.hasRoute<Map>() } == true,
+                    selected = currentDestination?.hasRoute<Map>() == true,
                     onClick = {
                         navController.navigate(Map) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -97,7 +96,7 @@ fun UserNavigation() {
                 NavigationBarItem(
                     icon = { Icon(painterResource(R.drawable.ic_profile), contentDescription = "Profile") },
                     label = { Text("Profile") },
-                    selected = currentDestination?.hierarchy?.any { it.hasRoute<Profile>() } == true,
+                    selected = currentDestination?.hasRoute<Profile>() == true,
                     onClick = {
                         navController.navigate(Profile) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }

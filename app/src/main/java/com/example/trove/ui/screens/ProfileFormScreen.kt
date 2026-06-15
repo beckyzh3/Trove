@@ -50,9 +50,7 @@ fun ProfileFormScreen(
         mutableStateOf(initialProfile)
     }
 
-    var showDiscardDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val showDiscardDialog = rememberSaveable { mutableStateOf(false) }
 
     val hasUnsavedChanges = draftProfile != initialProfile
 
@@ -65,9 +63,7 @@ fun ProfileFormScreen(
     val isFormValid =
         isNameValid && isUsernameValid
 
-    var submitAttempted by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val submitAttempted = rememberSaveable { mutableStateOf(false) }
 
     val screenTitle = when (mode) {
         ProfileFormMode.CREATE -> "Create Profile"
@@ -75,13 +71,13 @@ fun ProfileFormScreen(
     }
 
     BackHandler(enabled = hasUnsavedChanges) {
-        showDiscardDialog = true
+        showDiscardDialog.value = true
     }
 
-    if (showDiscardDialog) {
+    if (showDiscardDialog.value) {
         AlertDialog(
             onDismissRequest = {
-                showDiscardDialog = false
+                showDiscardDialog.value = false
             },
             title = {
                 Text("Discard changes?")
@@ -92,7 +88,7 @@ fun ProfileFormScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDiscardDialog = false
+                        showDiscardDialog.value = false
                         onCancel()
                     }
                 ) {
@@ -102,7 +98,7 @@ fun ProfileFormScreen(
             dismissButton = {
                 TextButton(
                     onClick = {
-                        showDiscardDialog = false
+                        showDiscardDialog.value = false
                     }
                 ) {
                     Text("Keep editing")
@@ -118,7 +114,7 @@ fun ProfileFormScreen(
                 showBack = true,
                 onBack = {
                     if (hasUnsavedChanges) {
-                        showDiscardDialog = true
+                        showDiscardDialog.value = true
                     } else {
                         onCancel()
                     }
@@ -129,7 +125,7 @@ fun ProfileFormScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    submitAttempted = true
+                    submitAttempted.value = true
 
                     if (isFormValid) {
                         onSave(draftProfile)
@@ -175,9 +171,9 @@ fun ProfileFormScreen(
                 label = {
                     Text("Name")
                 },
-                isError = !isNameValid,
+                isError = submitAttempted.value && !isNameValid,
                 supportingText = {
-                    if (!isNameValid) {
+                    if (submitAttempted.value && !isNameValid) {
                         Text("Name cannot be empty")
                     }
                 },
@@ -198,7 +194,7 @@ fun ProfileFormScreen(
                 readOnly = mode == ProfileFormMode.EDIT,
                 isError =
                     mode == ProfileFormMode.CREATE &&
-                            !isUsernameValid,
+                            submitAttempted.value && !isUsernameValid,
                 supportingText = {
                     when {
                         mode == ProfileFormMode.CREATE &&
