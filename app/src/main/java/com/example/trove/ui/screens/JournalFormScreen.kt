@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.trove.Journal
 import com.example.trove.JournalEntry
+import com.example.trove.JournalSaver
 import com.example.trove.R
 import com.example.trove.ui.common.TroveTopBar
 
@@ -46,7 +47,7 @@ fun JournalFormScreen(
     onAddPhotoClick: () -> Unit
 ) {
 
-    var draftJournal by remember {
+    var draftJournal by rememberSaveable(stateSaver = JournalSaver) {
         mutableStateOf(initialJournal)
     }
 
@@ -60,13 +61,8 @@ fun JournalFormScreen(
         )
     }
 
-    var submitAttempted by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    var showDiscardDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val submitAttempted = rememberSaveable { mutableStateOf(false) }
+    val showDiscardDialog = rememberSaveable { mutableStateOf(false) }
 
     val hasUnsavedChanges =
         draftJournal != initialJournal ||
@@ -92,13 +88,13 @@ fun JournalFormScreen(
     }
 
     BackHandler(enabled = hasUnsavedChanges) {
-        showDiscardDialog = true
+        showDiscardDialog.value = true
     }
 
-    if (showDiscardDialog) {
+    if (showDiscardDialog.value) {
         AlertDialog(
             onDismissRequest = {
-                showDiscardDialog = false
+                showDiscardDialog.value = false
             },
             title = {
                 Text("Discard changes?")
@@ -109,7 +105,7 @@ fun JournalFormScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDiscardDialog = false
+                        showDiscardDialog.value = false
                         onCancel()
                     }
                 ) {
@@ -119,7 +115,7 @@ fun JournalFormScreen(
             dismissButton = {
                 TextButton(
                     onClick = {
-                        showDiscardDialog = false
+                        showDiscardDialog.value = false
                     }
                 ) {
                     Text("Keep editing")
@@ -135,7 +131,7 @@ fun JournalFormScreen(
                 showBack = true,
                 onBack = {
                     if (hasUnsavedChanges) {
-                        showDiscardDialog = true
+                        showDiscardDialog.value = true
                     } else {
                         onCancel()
                     }
@@ -145,7 +141,7 @@ fun JournalFormScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    submitAttempted = true
+                    submitAttempted.value = true
 
                     if (isFormValid) {
                         onSave(
@@ -183,9 +179,9 @@ fun JournalFormScreen(
                 label = {
                     Text("Journal name")
                 },
-                isError = submitAttempted && !isNameValid,
+                isError = submitAttempted.value && !isNameValid,
                 supportingText = {
-                    if (submitAttempted && !isNameValid) {
+                    if (submitAttempted.value && !isNameValid) {
                         Text("Journal name cannot be empty")
                     }
                 },
@@ -200,9 +196,9 @@ fun JournalFormScreen(
                 label = {
                     Text("Location")
                 },
-                isError = submitAttempted && !isLocationValid,
+                isError = submitAttempted.value && !isLocationValid,
                 supportingText = {
-                    if (submitAttempted && !isLocationValid) {
+                    if (submitAttempted.value && !isLocationValid) {
                         Text("Location cannot be empty")
                     }
                 },
@@ -215,7 +211,7 @@ fun JournalFormScreen(
 
                 JournalEntryEditor(
                     entry = entry,
-                    showErrors = submitAttempted,
+                    showErrors = submitAttempted.value,
                     onEntryChange = { updatedEntry ->
                         entries = entries.toMutableList().also {
                             it[index] = updatedEntry
@@ -364,8 +360,3 @@ fun EditJournalFormPreview() {
         onAddPhotoClick = {}
     )
 }
-
-
-
-
-

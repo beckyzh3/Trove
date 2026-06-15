@@ -1,22 +1,19 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0"
+    alias(libs.plugins.kotlin.serialization)
 
 }
 
 android {
     namespace = "com.example.trove"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    val sdkVersion = 37
+    compileSdk = sdkVersion
 
     defaultConfig {
         applicationId = "com.example.trove"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = sdkVersion
         versionCode = 1
         versionName = "1.0"
 
@@ -55,6 +52,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

@@ -6,6 +6,15 @@ import kotlinx.serialization.Serializable
 object Home
 
 @Serializable
+object Explore
+
+@Serializable
+object CreateJournal
+
+@Serializable
+object Map
+
+@Serializable
 object Profile
 
 @Serializable
