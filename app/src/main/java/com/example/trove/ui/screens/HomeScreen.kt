@@ -23,6 +23,8 @@ import com.example.trove.ui.common.ImagePlaceholder
 import com.example.trove.ui.common.TroveTopBar
 import com.example.trove.ui.theme.TroveTheme
 
+
+// INCOMPLETE JUST A PLACEHOLDER
 @Composable
 fun HomeScreen(
     user: User,

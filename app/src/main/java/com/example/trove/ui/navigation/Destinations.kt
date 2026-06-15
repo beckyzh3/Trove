@@ -18,5 +18,13 @@ object Map
 object Profile
 
 @Serializable
+object CreateProfile
+
+@Serializable
 object EditProfile
 
+@Serializable
+object CreateJournal
+
+@Serializable
+object EditJournal

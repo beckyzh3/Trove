@@ -3,6 +3,10 @@ package com.example.trove.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -37,6 +41,11 @@ fun UserNavigation() {
             likes = 842
         ))
     }
+
+    var journal by remember {
+        mutableStateOf(Journal())
+    }
+
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
