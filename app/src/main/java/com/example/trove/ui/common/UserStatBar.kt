@@ -83,11 +83,6 @@ fun UserStatBar(
                 color = Color.Gray
             )
 
-            UserStat(
-                number = user.followers,
-                label = "Followers",
-                modifier = Modifier.weight(1f)
-            )
         }
     }
 }

@@ -38,12 +38,11 @@ fun HomeScreen(
             TroveTopBar(
                 title = "Welcome back, $firstName",
                 actions = {
+
                     IconButton(onClick = { /* Search clicked */ }) {
                         Icon(painter = painterResource(R.drawable.ic_settings), contentDescription = "Search")
                     }
-                    IconButton(onClick = { /* Search clicked */ }) {
-                        Icon(painter = painterResource(R.drawable.ic_settings), contentDescription = "Notifications")
-                    }
+
                     IconButton(onClick = onProfile) {
                         Box(
                             modifier = Modifier

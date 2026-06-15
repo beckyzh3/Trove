@@ -23,8 +23,6 @@ object CreateProfile
 @Serializable
 object EditProfile
 
-@Serializable
-object CreateJournal
 
 @Serializable
 object EditJournal
