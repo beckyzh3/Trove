@@ -21,6 +21,7 @@ import com.example.trove.R
 import com.example.trove.User
 import com.example.trove.UserSaver
 import com.example.trove.ui.screens.HomeScreen
+import com.example.trove.ui.screens.JournalDetailScreen
 import com.example.trove.ui.screens.JournalFormMode
 import com.example.trove.ui.screens.JournalFormScreen
 import com.example.trove.ui.screens.ProfileFormMode
@@ -44,6 +45,10 @@ fun UserNavigation() {
 
     var journals by remember {
         mutableStateOf(listOf<Journal>())
+    }
+
+    var selectedJournal by remember {
+        mutableStateOf<Journal?>(null)
     }
 
 
@@ -140,6 +145,8 @@ fun UserNavigation() {
                 }
             }
 
+
+
             composable<CreateJournal> {
                 JournalFormScreen(
                     initialJournal = Journal(),
@@ -163,11 +170,25 @@ fun UserNavigation() {
                 ProfileScreen(
                     user = user,
                     journals = journals,
-                    onJournalClick = {},
+                    onJournalClick = { clickedJournal ->
+                        selectedJournal = clickedJournal
+                        navController.navigate(JournalDetail)
+                    },
                     onBack = { navController.popBackStack() },
                     onEditClick = { navController.navigate(EditProfile) },
                     onSettingsClick = { navController.popBackStack() }
                 )
+            }
+
+            composable<JournalDetail> {
+                selectedJournal?.let { journal ->
+                    JournalDetailScreen(
+                        journal = journal,
+                        onBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
             }
 
             composable<EditProfile> {

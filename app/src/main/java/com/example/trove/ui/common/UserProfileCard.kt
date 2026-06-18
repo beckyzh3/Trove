@@ -36,7 +36,6 @@ fun UserProfileCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
         ){
 
             Column(
