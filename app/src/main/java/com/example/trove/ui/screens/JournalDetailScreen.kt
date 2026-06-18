@@ -9,27 +9,54 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.trove.Journal
 import com.example.trove.JournalEntry
+import com.example.trove.R
+import com.example.trove.ui.common.TroveTopBar
 import com.example.trove.ui.theme.TroveTheme
 
 @Composable
 fun JournalDetailScreen(
     journal: Journal,
-    onBack: () -> Unit
+    isOwner: Boolean,
+    onBack: () -> Unit,
+    onEditClick: () -> Unit
 ) {
 
     // display one journal and its entries
 
-    Scaffold { innerPadding ->
+    Scaffold (
+        topBar = {
+            TroveTopBar(
+                title = journal.name,
+                showBack = true,
+                onBack = onBack
+            )
+        },
+        floatingActionButton = {
+            if (isOwner) {
+                FloatingActionButton(
+                    onClick = onEditClick
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_edit),
+                        contentDescription = "Edit journal"
+                    )
+                }
+            }
+        }
+    ){ innerPadding ->
 
         LazyColumn(
             modifier = Modifier
@@ -40,11 +67,6 @@ fun JournalDetailScreen(
         ) {
 
             item {
-
-                Text(
-                    text = journal.name,
-                    style = MaterialTheme.typography.headlineMedium
-                )
 
                 Text(
                     text = journal.location,
@@ -113,7 +135,9 @@ fun JournalDetailScreenPreview() {
                     )
                 )
             ),
-            onBack = {}
+            isOwner = true,
+            onBack = {},
+            onEditClick = {}
         )
     }
 }
