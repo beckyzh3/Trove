@@ -25,6 +25,7 @@ import com.example.trove.User
 @Composable
 fun UserProfileCard(
     user: User,
+    isCurrentUser: Boolean,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -64,11 +65,13 @@ fun UserProfileCard(
                 )
             }
 
-            OutlinedButton(
-                onClick = { onEditClick() },
-                modifier = Modifier.align(Alignment.TopEnd),
+            if (isCurrentUser) {
+                OutlinedButton(
+                    onClick = { onEditClick() },
+                    modifier = Modifier.align(Alignment.TopEnd),
                 ) {
-                Text(text = "Edit Profile")
+                    Text(text = "Edit Profile")
+                }
             }
         }
 
@@ -90,6 +93,7 @@ fun UserProfileCardPreview() {
             numJournals = 3,
             likes = 558
         ),
+        isCurrentUser = true,
         onEditClick = {},
         modifier = Modifier.padding(16.dp)
     )
