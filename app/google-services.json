@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "371626222252",
+    "project_id": "trove-5112e",
+    "storage_bucket": "trove-5112e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:371626222252:android:a239933380fa84d4173509",
+        "android_client_info": {
+          "package_name": "com.example.trove"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "371626222252-kafo1r9615mjamqfkl8jdaekr8e44fhu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.trove",
+            "certificate_hash": "f14e8f9a698c5168e7f1c898daa43c6297e6f308"
+          }
+        },
+        {
+          "client_id": "371626222252-74qvrmbohq77gulbtd2e8pvj3s36i83k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpp1nrNl_6CfRiVP2kCDKpd7p5yy-0I_M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "371626222252-74qvrmbohq77gulbtd2e8pvj3s36i83k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
