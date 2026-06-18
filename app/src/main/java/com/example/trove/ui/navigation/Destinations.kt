@@ -23,9 +23,11 @@ object CreateProfile
 @Serializable
 object EditProfile
 
-
 @Serializable
 object EditJournal
 
 @Serializable
 object JournalDetail
+
+@Serializable
+object JournalViews

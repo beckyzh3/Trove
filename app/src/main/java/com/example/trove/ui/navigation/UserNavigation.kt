@@ -24,6 +24,7 @@ import com.example.trove.ui.screens.HomeScreen
 import com.example.trove.ui.screens.JournalDetailScreen
 import com.example.trove.ui.screens.JournalFormMode
 import com.example.trove.ui.screens.JournalFormScreen
+import com.example.trove.ui.screens.JournalViewsScreen
 import com.example.trove.ui.screens.ProfileFormMode
 import com.example.trove.ui.screens.ProfileFormScreen
 import com.example.trove.ui.screens.ProfileScreen
@@ -131,7 +132,9 @@ fun UserNavigation() {
                 HomeScreen(
                     user = user,
                     onExplore = {},
-                    onJournals = {},
+                    onJournals = {
+                        navController.navigate(JournalViews)
+                    },
                     onProfile = {
                         navController.navigate(Profile)
                     },
@@ -152,7 +155,11 @@ fun UserNavigation() {
                     initialJournal = Journal(),
                     mode = JournalFormMode.CREATE,
                     onSave = { createdJournal ->
-                        journals = journals + createdJournal
+                        val journalWithOwner = createdJournal.copy(
+                            ownerId = user.uid
+                        )
+
+                        journals = journals + journalWithOwner
                         navController.popBackStack()
                     },
                     onCancel = { navController.popBackStack() },
@@ -176,7 +183,7 @@ fun UserNavigation() {
                     },
                     onBack = { navController.popBackStack() },
                     onEditClick = { navController.navigate(EditProfile) },
-                    onSettingsClick = { navController.popBackStack() }
+                    onSettingsClick = { /* fill in later */ }
                 )
             }
 
@@ -184,8 +191,12 @@ fun UserNavigation() {
                 selectedJournal?.let { journal ->
                     JournalDetailScreen(
                         journal = journal,
+                        isOwner = journal.ownerId == user.uid,
                         onBack = {
                             navController.popBackStack()
+                        },
+                        onEditClick = {
+                            navController.navigate(EditJournal)
                         }
                     )
                 }
@@ -201,6 +212,19 @@ fun UserNavigation() {
                     },
                     onCancel = { navController.popBackStack() },
                     onProfilePictureClick = { /* Open profile photo picker */ }
+                )
+            }
+
+            composable<JournalViews> {
+                JournalViewsScreen(
+                    journals = journals,
+                    onJournalClick = { clickedJournal ->
+                        selectedJournal = clickedJournal
+                        navController.navigate(JournalDetail)
+                    },
+                    onBack = {
+                        navController.popBackStack()
+                    }
                 )
             }
         }

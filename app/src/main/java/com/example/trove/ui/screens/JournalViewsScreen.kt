@@ -22,17 +22,28 @@ import androidx.compose.ui.unit.dp
 import com.example.trove.Journal
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.trove.JournalEntry
+import com.example.trove.ui.common.JournalPreviewCard
+import com.example.trove.ui.common.TroveTopBar
 import com.example.trove.ui.theme.TroveTheme
 
 @Composable
 fun JournalViewsScreen(
     journals: List<Journal>,
-    onJournalClick: (Journal) -> Unit
+    onJournalClick: (Journal) -> Unit,
+    onBack: () -> Unit
 ) {
 
     // show all journals in a list
 
-    Scaffold { innerPadding ->
+    Scaffold (
+        topBar = {
+            TroveTopBar(
+                title = "Journals",
+                showBack = true,
+                onBack = onBack
+            )
+        }
+    ) { innerPadding ->
 
         LazyColumn(
             modifier = Modifier
@@ -54,55 +65,6 @@ fun JournalViewsScreen(
                     }
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun JournalPreviewCard(
-    journal: Journal,
-    onClick: () -> Unit
-) {
-
-    // preview card for one journal
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                onClick()
-            },
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
-    ) {
-
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            Text(
-                text = journal.name,
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Text(
-                text = journal.location,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            HorizontalDivider()
-
-            Text(
-                text = journal.routeSummary,
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            Text(
-                text = "${journal.likes} likes",
-                style = MaterialTheme.typography.bodySmall
-            )
         }
     }
 }
@@ -136,7 +98,8 @@ fun JournalViewsScreenPreview() {
                     likes = 120
                 )
             ),
-            onJournalClick = {}
+            onJournalClick = {},
+            onBack = {}
         )
     }
 }
