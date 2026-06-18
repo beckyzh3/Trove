@@ -3,6 +3,7 @@ package com.example.trove.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,15 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.trove.Journal
 import com.example.trove.R
 import com.example.trove.User
 import com.example.trove.ui.common.TroveTopBar
+import com.example.trove.ui.common.JournalProfileCard
 import com.example.trove.ui.common.ImagePlaceholder
 import com.example.trove.ui.common.UserProfileCard
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 
 @Composable
 fun ProfileScreen(
     user: User,
+    journals: List<Journal>,
+    onJournalClick: (Journal) -> Unit,
     onBack: () -> Unit,
     onEditClick: () -> Unit,
     onSettingsClick: () -> Unit
@@ -52,53 +61,58 @@ fun ProfileScreen(
         }
     ) { innerPadding ->
 
-        Column(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-        ){
-            UserProfileCard(
-                user = user,
-                onEditClick = onEditClick,
-                modifier = Modifier.padding(innerPadding)
-            )
-
-            Text(text = "My Journals",
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        24.dp,
-                        alignment = Alignment.CenterHorizontally)
-                ) {
-                    ImagePlaceholder(
-                        modifier = Modifier.size(140.dp)
-                    )
-
-                    ImagePlaceholder(
-                        modifier = Modifier.size(140.dp)
-                    )
+                .padding(innerPadding),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item(
+                span = {
+                    GridItemSpan(maxLineSpan)
                 }
+            ) {
+                UserProfileCard(
+                    user = user,
+                    onEditClick = onEditClick,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        24.dp,
-                        alignment = Alignment.CenterHorizontally)
+            item(
+                span = {
+                    GridItemSpan(maxLineSpan)
+                }
+            ) {
+                Text(
+                    text = "My Journals",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
+
+            if (journals.isEmpty()) {
+                item(
+                    span = {
+                        GridItemSpan(maxLineSpan)
+                    }
                 ) {
-                    ImagePlaceholder(
-                        modifier = Modifier.size(140.dp)
-                    )
-
-                    ImagePlaceholder(
-                        modifier = Modifier.size(140.dp)
+                    Text("You haven't created any journals yet.")
+                }
+            } else {
+                items(
+                    items = journals,
+                    key = { journal ->
+                        journal.id
+                    }
+                ) { journal ->
+                    JournalProfileCard(
+                        journal = journal,
+                        onClick = {
+                            onJournalClick(journal)
+                        }
                     )
                 }
             }
@@ -118,9 +132,26 @@ fun ProfileScreenPreview() {
             bio = "hiii",
             countriesList = mutableListOf("Italy", "Greece", "Spain"),
             friends = mutableListOf("Bob", "Kristen", "Sophie"),
-            numJournals = 3,
+            numJournals = 2,
             likes = 558
         ),
+        journals = listOf(
+            Journal(
+                id = "1",
+                name = "Italy Trip",
+                location = "Rome, Italy",
+                routeSummary = "Rome → Florence",
+                likes = 24
+            ),
+            Journal(
+                id = "2",
+                name = "Greece Trip",
+                location = "Athens, Greece",
+                routeSummary = "Athens → Santorini",
+                likes = 18
+            )
+        ),
+        onJournalClick = {},
         onBack = {},
         onEditClick = {},
         onSettingsClick = {}
