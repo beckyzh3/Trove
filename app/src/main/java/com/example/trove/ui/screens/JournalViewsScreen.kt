@@ -107,71 +107,6 @@ fun JournalPreviewCard(
     }
 }
 
-@Composable
-fun JournalDetailScreen(
-    journal: Journal
-) {
-
-    // display one journal and its entries
-
-    Scaffold { innerPadding ->
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-
-            item {
-
-                Text(
-                    text = journal.name,
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Text(
-                    text = journal.location,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Text(
-                    text = journal.routeSummary,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 12.dp)
-                )
-            }
-
-            // show every journal entry
-
-            items(journal.entries) { entry ->
-
-                Card {
-
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-
-                        Text(
-                            text = entry.dateRange,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-
-                        Text(
-                            text = entry.text,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
 
 @Preview(showBackground = true)
 @Composable
@@ -202,36 +137,6 @@ fun JournalViewsScreenPreview() {
                 )
             ),
             onJournalClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun JournalDetailScreenPreview() {
-    TroveTheme {
-        JournalDetailScreen(
-            journal = Journal(
-                id = "1",
-                name = "Greece and Italy",
-                location = "Athens, Rome, Florence",
-                routeSummary = "Athens → Rome → Florence",
-                likes = 558,
-                entries = listOf(
-                    JournalEntry(
-                        dateRange = "May 20–22",
-                        text = "Explored Athens and visited the Acropolis."
-                    ),
-                    JournalEntry(
-                        dateRange = "May 23–25",
-                        text = "Traveled to Rome and visited the Colosseum."
-                    ),
-                    JournalEntry(
-                        dateRange = "May 26–28",
-                        text = "Finished the trip in Florence and explored the city."
-                    )
-                )
-            )
         )
     }
 }

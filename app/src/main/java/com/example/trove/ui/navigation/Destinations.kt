@@ -26,3 +26,6 @@ object EditProfile
 
 @Serializable
 object EditJournal
+
+@Serializable
+object JournalDetail
