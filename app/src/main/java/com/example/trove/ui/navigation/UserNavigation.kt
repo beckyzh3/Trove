@@ -42,8 +42,8 @@ fun UserNavigation() {
         ))
     }
 
-    var journal by remember {
-        mutableStateOf(Journal())
+    var journals by remember {
+        mutableStateOf(listOf<Journal>())
     }
 
 
@@ -144,7 +144,8 @@ fun UserNavigation() {
                 JournalFormScreen(
                     initialJournal = Journal(),
                     mode = JournalFormMode.CREATE,
-                    onSave = {
+                    onSave = { createdJournal ->
+                        journals = journals + createdJournal
                         navController.popBackStack()
                     },
                     onCancel = { navController.popBackStack() },
@@ -161,9 +162,11 @@ fun UserNavigation() {
             composable<Profile> {
                 ProfileScreen(
                     user = user,
+                    journals = journals,
+                    onJournalClick = {},
                     onBack = { navController.popBackStack() },
                     onEditClick = { navController.navigate(EditProfile) },
-                    onSettingsClick = { /* Open settings */ }
+                    onSettingsClick = { navController.popBackStack() }
                 )
             }
 
