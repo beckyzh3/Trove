@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.trove.Journal
+import com.example.trove.JournalEntry
 import com.example.trove.R
 import com.example.trove.User
 import com.example.trove.UserSaver
@@ -25,6 +26,7 @@ import com.example.trove.ui.screens.JournalDetailScreen
 import com.example.trove.ui.screens.JournalFormMode
 import com.example.trove.ui.screens.JournalFormScreen
 import com.example.trove.ui.screens.JournalViewsScreen
+import com.example.trove.ui.screens.MapScreen
 import com.example.trove.ui.screens.ProfileFormMode
 import com.example.trove.ui.screens.ProfileFormScreen
 import com.example.trove.ui.screens.ProfileScreen
@@ -46,8 +48,45 @@ fun UserNavigation() {
     }
 
     var journals by remember {
-        mutableStateOf(listOf<Journal>())
-    }
+    mutableStateOf(
+        listOf(
+            Journal(
+                id = "test-journal-1",
+                ownerId = "brooke-uid",
+                ownerName = "Brooke Cone",
+                name = "San Francisco Trip",
+                location = "San Francisco, CA",
+                routeSummary = "Golden Gate → Fisherman's Wharf → Pier 39",
+                entries = listOf(
+                    JournalEntry(
+                        id = "entry-1",
+                        dateRange = "Jun 18",
+                        text = "Golden Gate Bridge",
+                        latitude = 37.8199,
+                        longitude = -122.4783,
+                        timestamp = 1L
+                    ),
+                    JournalEntry(
+                        id = "entry-2",
+                        dateRange = "Jun 18",
+                        text = "Fisherman's Wharf",
+                        latitude = 37.8080,
+                        longitude = -122.4177,
+                        timestamp = 2L
+                    ),
+                    JournalEntry(
+                        id = "entry-3",
+                        dateRange = "Jun 18",
+                        text = "Pier 39",
+                        latitude = 37.8087,
+                        longitude = -122.4098,
+                        timestamp = 3L
+                    )
+                )
+            )
+        )
+    )
+}
 
     var selectedJournal by remember {
         mutableStateOf<Journal?>(null)
@@ -271,9 +310,20 @@ fun UserNavigation() {
             }
 
             composable<Map> {
-                Surface {
-                    Text("Map Screen Placeholder")
-                }
+                val allEntries = journals.flatMap { it.entries }
+
+                MapScreen(
+                    entries = allEntries,
+                    onPinClick = { entry ->
+                        val journal = journals.find { j ->
+                            j.entries.any { it.id == entry.id }
+                        }
+                        journal?.let {
+                            selectedJournal = it
+                            navController.navigate(JournalDetail)
+                        }
+                    }
+                )
             }
 
             composable<Profile> {
