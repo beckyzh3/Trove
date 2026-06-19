@@ -37,6 +37,7 @@ import androidx.compose.foundation.lazy.grid.items
 fun ProfileScreen(
     user: User,
     journals: List<Journal>,
+    isCurrentUser: Boolean,
     onJournalClick: (Journal) -> Unit,
     onBack: () -> Unit,
     onEditClick: () -> Unit,
@@ -50,11 +51,13 @@ fun ProfileScreen(
                 onBack = onBack,
                 showBack = true,
                 actions = {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_settings),
-                            contentDescription = "Settings"
-                        )
+                    if (isCurrentUser) {
+                        IconButton(onClick = onSettingsClick) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_settings),
+                                contentDescription = "Settings"
+                            )
+                        }
                     }
                 }
             )
@@ -77,6 +80,7 @@ fun ProfileScreen(
             ) {
                 UserProfileCard(
                     user = user,
+                    isCurrentUser = isCurrentUser,
                     onEditClick = onEditClick,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -88,7 +92,11 @@ fun ProfileScreen(
                 }
             ) {
                 Text(
-                    text = "My Journals",
+                    text = if (isCurrentUser) {
+                        "My Journals"
+                    } else {
+                        "${user.name}'s Journals"
+                    },
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
@@ -151,6 +159,7 @@ fun ProfileScreenPreview() {
                 likes = 18
             )
         ),
+        isCurrentUser = true,
         onJournalClick = {},
         onBack = {},
         onEditClick = {},

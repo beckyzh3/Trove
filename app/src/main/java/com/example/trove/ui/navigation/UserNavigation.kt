@@ -33,6 +33,7 @@ import com.example.trove.ui.screens.ProfileScreen
 fun UserNavigation() {
     var user by rememberSaveable(stateSaver = UserSaver) {
         mutableStateOf(User(
+            uid = "beck-uid",
             username = "beckzh3",
             name = "Becky Zheng",
             bio = "Traveling the world one pin at a time!",
@@ -52,6 +53,41 @@ fun UserNavigation() {
         mutableStateOf<Journal?>(null)
     }
 
+
+    var selectedFriend by remember {
+        mutableStateOf<User?>(null)
+    }
+
+    var selectedFriendJournals by remember {
+        mutableStateOf(listOf<Journal>())
+    }
+
+    // fake friends
+    val alice = User(
+        uid = "alice-uid",
+        username = "alice",
+        name = "Alice Smith",
+        bio = "Collecting memories around the world.",
+        countriesList = mutableListOf("France", "Italy"),
+        friends = mutableListOf("Becky"),
+        numJournals = 1,
+        likes = 45
+    )
+
+    val aliceJournal = Journal(
+        id = "alice-journal-1",
+        ownerId = "alice-uid",
+        ownerName = "Alice Smith",
+        name = "Paris Getaway",
+        location = "Paris, France",
+        routeSummary = "Montmartre → Louvre → Eiffel Tower",
+        isPublic = true,
+        theme = "Autumn Breeze",
+        likes = 45
+    )
+
+    val friendUsers = listOf(alice)
+    val friendJournals = listOf(aliceJournal)
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -131,15 +167,52 @@ fun UserNavigation() {
             composable<Home> {
                 HomeScreen(
                     user = user,
-                    onExplore = {},
+                    friendsJournals = friendJournals,
+                    onExplore = {
+                        navController.navigate(Explore)
+                    },
                     onJournals = {
                         navController.navigate(JournalViews)
                     },
                     onProfile = {
                         navController.navigate(Profile)
                     },
-                    onSearch = {}
+                    onSearch = {},
+                    onFriendClick = { friendUid ->
+                        selectedFriend = friendUsers.find { friend ->
+                            friend.uid == friendUid
+                        }
+
+                        selectedFriendJournals = friendJournals.filter { journal ->
+                            journal.ownerId == friendUid
+                        }
+
+                        navController.navigate(FriendProfile)
+                    },
+                    onFriendJournalClick = { clickedJournal ->
+                        selectedJournal = clickedJournal
+                        navController.navigate(JournalDetail)
+                    }
                 )
+            }
+
+            composable<FriendProfile> {
+                selectedFriend?.let { friend ->
+                    ProfileScreen(
+                        user = friend,
+                        journals = selectedFriendJournals,
+                        isCurrentUser = false,
+                        onJournalClick = { clickedJournal ->
+                            selectedJournal = clickedJournal
+                            navController.navigate(JournalDetail)
+                        },
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onEditClick = {},
+                        onSettingsClick = {}
+                    )
+                }
             }
 
             composable<Explore> {
@@ -156,7 +229,9 @@ fun UserNavigation() {
                     mode = JournalFormMode.CREATE,
                     onSave = { createdJournal ->
                         val journalWithOwner = createdJournal.copy(
-                            ownerId = user.uid
+                            id = (journals.size + 1).toString(),
+                            ownerId = user.uid,
+                            ownerName = user.name
                         )
 
                         journals = journals + journalWithOwner
@@ -165,6 +240,34 @@ fun UserNavigation() {
                     onCancel = { navController.popBackStack() },
                     onAddPhotoClick = { /* Open photo picker */ }
                 )
+            }
+
+            composable<EditJournal> {
+                selectedJournal?.let { journal ->
+                    JournalFormScreen(
+                        initialJournal = journal,
+                        mode = JournalFormMode.EDIT,
+                        onSave = { updatedJournal ->
+
+                            journals = journals.map { existingJournal ->
+                                if (existingJournal.id == updatedJournal.id) {
+                                    updatedJournal
+                                } else {
+                                    existingJournal
+                                }
+                            }
+
+                            selectedJournal = updatedJournal
+                            navController.popBackStack()
+                        },
+                        onCancel = {
+                            navController.popBackStack()
+                        },
+                        onAddPhotoClick = {
+                            // connect photo picker later
+                        }
+                    )
+                }
             }
 
             composable<Map> {
@@ -177,6 +280,7 @@ fun UserNavigation() {
                 ProfileScreen(
                     user = user,
                     journals = journals,
+                    isCurrentUser = true,
                     onJournalClick = { clickedJournal ->
                         selectedJournal = clickedJournal
                         navController.navigate(JournalDetail)
@@ -186,6 +290,8 @@ fun UserNavigation() {
                     onSettingsClick = { /* fill in later */ }
                 )
             }
+
+
 
             composable<JournalDetail> {
                 selectedJournal?.let { journal ->
