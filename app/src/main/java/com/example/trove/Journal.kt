@@ -30,7 +30,15 @@ val JournalSaver = mapSaver(
             "name" to journal.name,
             "location" to journal.location,
             "entries" to journal.entries.map { entry ->
-                mapOf("dateRange" to entry.dateRange, "text" to entry.text)
+                mapOf(
+                    "id" to entry.id,
+                    "dateRange" to entry.dateRange,
+                    "text" to entry.text,
+                    "latitude" to entry.latitude,
+                    "longitude" to entry.longitude,
+                    "photoUrl" to entry.photoUrl,
+                    "timestamp" to entry.timestamp
+                )
             },
             "routeSummary" to journal.routeSummary,
             "photoUris" to journal.photoUris,
@@ -44,8 +52,13 @@ val JournalSaver = mapSaver(
             val entryMap = it as? Map<*, *>
             if (entryMap != null) {
                 JournalEntry(
+                    id = entryMap["id"] as? String ?: "",
                     dateRange = entryMap["dateRange"] as? String ?: "",
-                    text = entryMap["text"] as? String ?: ""
+                    text = entryMap["text"] as? String ?: "",
+                    latitude = entryMap["latitude"] as? Double ?: 0.0,
+                    longitude = entryMap["longitude"] as? Double ?: 0.0,
+                    photoUrl = entryMap["photoUrl"] as? String ?: "",
+                    timestamp = entryMap["timestamp"] as? Long ?: 0L
                 )
             } else null
         } ?: emptyList()
