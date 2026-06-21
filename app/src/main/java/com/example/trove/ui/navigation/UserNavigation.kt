@@ -42,6 +42,7 @@ fun UserNavigation(
         mutableStateOf(initialUser)
     }
 
+    /*
     var journals by remember {
     mutableStateOf(
         listOf(
@@ -82,6 +83,14 @@ fun UserNavigation(
         )
     )
 }
+
+     */
+
+
+
+    var journals by remember {
+        mutableStateOf(listOf<Journal>())
+    }
 
     var selectedJournal by remember {
         mutableStateOf<Journal?>(null)
