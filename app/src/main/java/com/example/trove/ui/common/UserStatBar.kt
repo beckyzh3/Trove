@@ -40,7 +40,7 @@ fun UserStatBar(
         ) {
             UserStat(
                 number = journalCount,
-                label = "Journals",
+                label = "Trips",
                 modifier = Modifier.weight(1f)
             )
 

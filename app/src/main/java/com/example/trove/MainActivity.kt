@@ -39,8 +39,8 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // enable and re-enable to test sign in
-        FirebaseAuth.getInstance().signOut()
+        // Uncomment to force login screen on every launch (debug only):
+        // FirebaseAuth.getInstance().signOut()
         enableEdgeToEdge()
         setContent {
             TroveTheme {

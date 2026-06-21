@@ -2,7 +2,7 @@ package com.example.trove.ui.common
 
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
-import com.example.trove.Journal
+import com.example.trove.Trip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,8 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.trove.ui.theme.TroveTheme
 
 @Composable
-fun JournalProfileCard(
-    journal: Journal,
+fun TripProfileCard(
+    trip: Trip,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 )
@@ -43,7 +43,7 @@ fun JournalProfileCard(
             )
 
             Text(
-                text = journal.name,
+                text = trip.name,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(12.dp),
@@ -55,10 +55,10 @@ fun JournalProfileCard(
 
 @Preview(showBackground = true)
 @Composable
-fun JournalProfileCardPreview() {
+fun TripProfileCardPreview() {
     TroveTheme {
-        JournalProfileCard(
-            journal = Journal(
+        TripProfileCard(
+            trip = Trip(
                 id = "1",
                 name = "Italy Trip",
                 location = "Rome, Italy",

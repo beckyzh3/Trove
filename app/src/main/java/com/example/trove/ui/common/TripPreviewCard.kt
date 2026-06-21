@@ -14,15 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.trove.Journal
+import com.example.trove.Trip
 
 @Composable
-fun JournalPreviewCard(
-    journal: Journal,
+fun TripPreviewCard(
+    trip: Trip,
     onClick: () -> Unit
 ) {
-
-    // preview card for one journal
 
     Card(
         modifier = Modifier
@@ -41,24 +39,24 @@ fun JournalPreviewCard(
         ) {
 
             Text(
-                text = journal.name,
+                text = trip.name,
                 style = MaterialTheme.typography.titleLarge
             )
 
             Text(
-                text = journal.location,
+                text = trip.location,
                 style = MaterialTheme.typography.bodyMedium
             )
 
             HorizontalDivider()
 
             Text(
-                text = journal.routeSummary,
+                text = trip.routeSummary,
                 style = MaterialTheme.typography.bodySmall
             )
 
             Text(
-                text = "${journal.likes} likes",
+                text = "${trip.likes} likes",
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -67,9 +65,9 @@ fun JournalPreviewCard(
 
 @Preview(showBackground = true)
 @Composable
-fun JournalPreviewCardPreview() {
-    JournalPreviewCard(
-        journal = Journal(
+fun TripPreviewCardPreview() {
+    TripPreviewCard(
+        trip = Trip(
             id = "1",
             name = "Greece and Italy",
             location = "Athens, Rome, Florence",

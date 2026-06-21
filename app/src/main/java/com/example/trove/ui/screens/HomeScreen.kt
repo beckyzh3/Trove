@@ -17,12 +17,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.trove.Journal
+import com.example.trove.Trip
 import com.example.trove.R
 import com.example.trove.User
 import com.example.trove.ui.common.ImagePlaceholder
 import com.example.trove.ui.common.TroveTopBar
-import com.example.trove.ui.common.UserProfilePicture
 import com.example.trove.ui.theme.TroveTheme
 
 
@@ -30,13 +29,13 @@ import com.example.trove.ui.theme.TroveTheme
 @Composable
 fun HomeScreen(
     user: User,
-    friendsJournals: List<Journal>,
+    friendsTrips: List<Trip>,
     onProfile: () -> Unit,
     onSearch: () -> Unit,
     onExplore: () -> Unit,
-    onJournals: () -> Unit,
+    onTrips: () -> Unit,
     onFriendClick: (String) -> Unit,
-    onFriendJournalClick: (Journal) -> Unit
+    onFriendTripClick: (Trip) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val firstName = user.name.split(" ").firstOrNull() ?: user.name
@@ -52,10 +51,18 @@ fun HomeScreen(
                     }
 
                     IconButton(onClick = onProfile) {
-                        UserProfilePicture(
-                            profilePicture = user.profilePicture,
-                            modifier = Modifier.size(32.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(MaterialTheme.colorScheme.primary, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = user.name.take(1),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
                 }
             )
@@ -75,7 +82,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable { onSearch() },
-                placeholder = { Text("Search journals, places and people") },
+                placeholder = { Text("Search trips, places and people") },
                 leadingIcon = { 
                     Icon(
                         painter = painterResource(R.drawable.ic_settings), 
@@ -95,19 +102,19 @@ fun HomeScreen(
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterButton("Journals", onClick = onJournals)
+                FilterButton("Trips", onClick = onTrips)
                 FilterButton("Places")
                 FilterButton("People")
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Friends' Journals Section
-            SectionHeader(title = "Friends' Journals")
-            FriendsJournalsList(
-                journals = friendsJournals,
+            // Friends' Trips Section
+            SectionHeader(title = "Friends' Trips")
+            FriendsTripsList(
+                trips = friendsTrips,
                 onFriendClick = onFriendClick,
-                onJournalClick = onFriendJournalClick
+                onTripClick = onFriendTripClick
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -145,9 +152,9 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Trending Journals
-            SectionHeader(title = "Trending Journals")
-            TrendingJournalsList()
+            // Trending Trips
+            SectionHeader(title = "Trending Trips")
+            TrendingTripsList()
 
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -188,10 +195,10 @@ fun SectionHeader(title: String) {
 }
 
 @Composable
-fun FriendsJournalsList(
-    journals: List<Journal>,
+fun FriendsTripsList(
+    trips: List<Trip>,
     onFriendClick: (String) -> Unit,
-    onJournalClick: (Journal) -> Unit
+    onTripClick: (Trip) -> Unit
 ) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -199,16 +206,16 @@ fun FriendsJournalsList(
         modifier = Modifier.height(380.dp)
     ) {
         items(
-            items = journals,
-            key = { journal -> journal.id }
-        ) { journal ->
-            FriendJournalCard(
-                journal = journal,
+            items = trips,
+            key = { trip -> trip.id }
+        ) { trip ->
+            FriendTripCard(
+                trip = trip,
                 onFriendClick = {
-                    onFriendClick(journal.ownerId)
+                    onFriendClick(trip.ownerId)
                 },
-                onJournalClick = {
-                    onJournalClick(journal)
+                onTripClick = {
+                    onTripClick(trip)
                 }
             )
         }
@@ -216,13 +223,13 @@ fun FriendsJournalsList(
 }
 
 @Composable
-fun FriendJournalCard(
-    journal: Journal,
+fun FriendTripCard(
+    trip: Trip,
     onFriendClick: () -> Unit,
-    onJournalClick: () -> Unit
+    onTripClick: () -> Unit
 ) {
     Card(
-        onClick = onJournalClick,
+        onClick = onTripClick,
         modifier = Modifier
             .width(300.dp)
             .fillMaxHeight(),
@@ -243,23 +250,32 @@ fun FriendJournalCard(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                UserProfilePicture(
-                    profilePicture = journal.ownerProfilePicture,
-                    modifier = Modifier.size(56.dp)
-                )
+                // profile photo placeholder
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = trip.ownerName.take(1),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column {
                     Text(
-                        text = journal.ownerName,
+                        text = trip.ownerName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = journal.location,
+                        text = trip.location,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -270,7 +286,7 @@ fun FriendJournalCard(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = if (journal.isPublic) "Public" else "Private",
+                            text = if (trip.isPublic) "Public" else "Private",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -280,7 +296,7 @@ fun FriendJournalCard(
                             color = MaterialTheme.colorScheme.outline
                         )
                         Text(
-                            text = journal.theme,
+                            text = trip.theme,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.tertiary
                         )
@@ -302,11 +318,11 @@ fun FriendJournalCard(
 }
 
 @Composable
-fun TrendingJournalsList() {
-    val dummyJournals = listOf(
-        Journal(name = "Summer in Italy", location = "Rome, Italy", likes = 120),
-        Journal(name = "Japan Adventure", location = "Tokyo, Japan", likes = 85),
-        Journal(name = "Swiss Alps Hike", location = "Zermatt, Switzerland", likes = 210)
+fun TrendingTripsList() {
+    val dummyTrips = listOf(
+        Trip(name = "Summer in Italy", location = "Rome, Italy", likes = 120),
+        Trip(name = "Japan Adventure", location = "Tokyo, Japan", likes = 85),
+        Trip(name = "Swiss Alps Hike", location = "Zermatt, Switzerland", likes = 210)
     )
 
     LazyRow(
@@ -314,14 +330,14 @@ fun TrendingJournalsList() {
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.height(240.dp)
     ) {
-        items(dummyJournals) { journal ->
-            TrendingJournalCard(journal)
+        items(dummyTrips) { trip ->
+            TrendingTripCard(trip)
         }
     }
 }
 
 @Composable
-fun TrendingJournalCard(journal: Journal) {
+fun TrendingTripCard(trip: Trip) {
     Card(
         modifier = Modifier
             .width(220.dp)
@@ -340,14 +356,14 @@ fun TrendingJournalCard(journal: Journal) {
             )
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                    text = journal.name,
+                    text = trip.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = journal.location,
+                    text = trip.location,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.secondary
@@ -357,7 +373,7 @@ fun TrendingJournalCard(journal: Journal) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "❤️ ${journal.likes}",
+                        text = "❤️ ${trip.likes}",
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -375,8 +391,8 @@ fun HomeScreenPreview() {
             user = User(
                 uid = "beck-uid",
                 name = "Becky Zheng"),
-            friendsJournals = listOf(
-                Journal(
+            friendsTrips = listOf(
+                Trip(
                     id = "alice-journal-1",
                     ownerId = "alice-uid",
                     ownerName = "Alice Smith",
@@ -391,9 +407,9 @@ fun HomeScreenPreview() {
             onProfile = {},
             onSearch = {},
             onExplore = {},
-            onJournals = {},
+            onTrips = {},
             onFriendClick = {},
-            onFriendJournalClick = {}
+            onFriendTripClick = {}
         )
     }
 }
