@@ -30,6 +30,7 @@ import com.example.trove.ui.screens.MapScreen
 import com.example.trove.ui.screens.ProfileFormMode
 import com.example.trove.ui.screens.ProfileFormScreen
 import com.example.trove.ui.screens.ProfileScreen
+import com.example.trove.ui.screens.ExpScreen
 
 @Composable
 fun UserNavigation(
@@ -220,7 +221,9 @@ fun UserNavigation(
                     onProfile = {
                         navController.navigate(Profile)
                     },
-                    onSearch = {},
+                    onSearch = {
+                        navController.navigate(Explore)
+                    },
                     onFriendClick = { friendUid ->
                         selectedFriend = friendUsers.find { friend ->
                             friend.uid == friendUid
@@ -259,9 +262,13 @@ fun UserNavigation(
             }
 
             composable<Explore> {
-                Surface {
-                    Text("Explore Screen Placeholder")
-                }
+                ExpScreen(
+                    journals = journals + friendJournals,
+                    onJournalClick = { clickedJournal ->
+                        selectedJournal = clickedJournal
+                        navController.navigate(JournalDetail)
+                    }
+                )
             }
 
 
@@ -384,6 +391,16 @@ fun UserNavigation(
                     },
                     onBack = {
                         navController.popBackStack()
+                    }
+                )
+            }
+
+            composable<Explore> {
+                ExpScreen(
+                    journals = journals + friendJournals,
+                    onJournalClick = { clickedJournal ->
+                        selectedJournal = clickedJournal
+                        navController.navigate(JournalDetail)
                     }
                 )
             }
