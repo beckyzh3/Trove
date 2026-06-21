@@ -27,14 +27,10 @@ import com.example.trove.ui.theme.TroveTheme
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit,
-    onCreateAccountClick: () -> Unit
+    isLoading: Boolean,
+    errorMessage: String?,
+    onGoogleSignInClick: () -> Unit
 ) {
-    // state for login text
-
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -57,8 +53,11 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+
+            // ignore; decided to do sign in with Google
             // email input
 
+            /*
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -80,15 +79,34 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+
+             */
             // login button
 
             Button(
-                onClick = onLoginClick,
+                onClick = onGoogleSignInClick,
+                enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("log in")
+                Text(
+                    text = if (isLoading) {
+                        "Signing in..."
+                    } else {
+                        "Sign in with Google"
+                    }
+                )
             }
 
+            if (errorMessage != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            /*
             Spacer(modifier = Modifier.height(12.dp))
 
             // create account button
@@ -99,6 +117,8 @@ fun LoginScreen(
             ) {
                 Text("create account")
             }
+
+             */
         }
     }
 }
@@ -108,8 +128,9 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     TroveTheme {
         LoginScreen(
-            onLoginClick = {},
-            onCreateAccountClick = {}
+            isLoading = false,
+            errorMessage = null,
+            onGoogleSignInClick = {}
         )
     }
 }
