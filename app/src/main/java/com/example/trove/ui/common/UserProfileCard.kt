@@ -25,12 +25,14 @@ import com.example.trove.User
 @Composable
 fun UserProfileCard(
     user: User,
+    isFriend: Boolean,
     journalCount: Int,
     countryCount: Int,
     totalLikes: Int,
     friendCount: Int,
     isCurrentUser: Boolean,
     onEditClick: () -> Unit,
+    onAddFriendClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -81,6 +83,19 @@ fun UserProfileCard(
                 ) {
                     Text(text = "Edit Profile")
                 }
+            } else {
+                OutlinedButton(
+                    onClick = onAddFriendClick,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Text(
+                        if (isFriend) {
+                            "Friends"
+                        } else {
+                            "Add Friend"
+                        }
+                    )
+                }
             }
         }
 
@@ -98,12 +113,14 @@ fun UserProfileCardPreview() {
             name = "Becky Zheng",
             bio = "hiii",
         ),
+        isFriend = false,
         journalCount = 3,
         countryCount = 3,
         totalLikes = 558,
         friendCount = 3,
         isCurrentUser = true,
         onEditClick = {},
+        onAddFriendClick = {},
         modifier = Modifier.padding(16.dp)
     )
 }
