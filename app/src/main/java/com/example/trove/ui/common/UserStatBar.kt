@@ -21,7 +21,10 @@ import com.example.trove.User
 
 @Composable
 fun UserStatBar(
-    user: User,
+    journalCount: Int,
+    countryCount: Int,
+    totalLikes: Int,
+    friendCount: Int,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -36,7 +39,7 @@ fun UserStatBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             UserStat(
-                number = user.numJournals,
+                number = journalCount,
                 label = "Journals",
                 modifier = Modifier.weight(1f)
             )
@@ -48,7 +51,7 @@ fun UserStatBar(
             )
 
             UserStat(
-                number = user.countriesList.size,
+                number = countryCount,
                 label = "Countries",
                 modifier = Modifier.weight(1f)
             )
@@ -60,7 +63,7 @@ fun UserStatBar(
             )
 
             UserStat(
-                number = user.likes,
+                number = totalLikes,
                 label = "Likes",
                 modifier = Modifier.weight(1f)
             )
@@ -72,7 +75,7 @@ fun UserStatBar(
             )
 
             UserStat(
-                number = user.friends.size,
+                number = friendCount,
                 label = "Friends",
                 modifier = Modifier.weight(1f)
             )
@@ -107,15 +110,9 @@ private fun UserStat(
 @Composable
 fun UserStatBarPreview() {
     UserStatBar(
-        user = User(
-            username = "beckzh3",
-            name = "becky",
-            bio = "hiii",
-            countriesList = mutableListOf("Italy", "Greece", "Spain"),
-            friends = mutableListOf("Bob", "Kristen", "Sophie"),
-            numJournals = 3,
-            likes = 558
-        ),
-        modifier = Modifier.fillMaxWidth()
-    )
+        journalCount = 3,
+        countryCount = 3,
+        totalLikes = 558,
+        friendCount = 3,
+        modifier = Modifier.fillMaxWidth() )
 }

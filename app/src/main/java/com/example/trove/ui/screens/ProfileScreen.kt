@@ -44,6 +44,15 @@ fun ProfileScreen(
     onSettingsClick: () -> Unit
 ) {
 
+    val journalCount = journals.size
+
+    val totalLikes = journals.sumOf { journal ->
+        journal.likes
+    }
+
+    val countryCount = user.countriesList.size
+    val friendCount = user.friends.size
+
     Scaffold(
         topBar = {
             TroveTopBar(
@@ -80,6 +89,10 @@ fun ProfileScreen(
             ) {
                 UserProfileCard(
                     user = user,
+                    journalCount = journalCount,
+                    countryCount = countryCount,
+                    totalLikes = totalLikes,
+                    friendCount = friendCount,
                     isCurrentUser = isCurrentUser,
                     onEditClick = onEditClick,
                     modifier = Modifier.fillMaxWidth()
