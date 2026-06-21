@@ -30,18 +30,14 @@ import com.example.trove.ui.screens.ProfileFormScreen
 import com.example.trove.ui.screens.ProfileScreen
 
 @Composable
-fun UserNavigation() {
-    var user by rememberSaveable(stateSaver = UserSaver) {
-        mutableStateOf(User(
-            username = "beckzh3",
-            name = "Becky Zheng",
-            bio = "Traveling the world one pin at a time!",
-            countriesList = mutableListOf("Italy", "Greece", "Spain", "Japan"),
-            friends = mutableListOf("Alice", "Bob", "Charlie"),
-            followers = 1250,
-            numJournals = 4,
-            likes = 842
-        ))
+fun UserNavigation(
+    initialUser: User
+) {
+    var user by rememberSaveable(
+        initialUser,
+        stateSaver = UserSaver
+    ) {
+        mutableStateOf(initialUser)
     }
 
     var journals by remember {
