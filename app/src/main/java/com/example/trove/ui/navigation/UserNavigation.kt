@@ -30,7 +30,9 @@ import com.example.trove.ui.screens.MapScreen
 import com.example.trove.ui.screens.ProfileFormMode
 import com.example.trove.ui.screens.ProfileFormScreen
 import com.example.trove.ui.screens.ProfileScreen
-import com.example.trove.ui.screens.ExpScreen
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.trove.data.UserRepo
+import kotlinx.coroutines.launch
 
 @Composable
 fun UserNavigation(
@@ -42,6 +44,8 @@ fun UserNavigation(
     ) {
         mutableStateOf(initialUser)
     }
+
+    val scope = rememberCoroutineScope()
 
     /*
     var journals by remember {
@@ -113,7 +117,7 @@ fun UserNavigation(
         name = "Alice Smith",
         bio = "Collecting memories around the world.",
         countriesList = mutableListOf("France", "Italy"),
-        friends = mutableListOf("Becky"),
+        friends = mutableListOf(),
         numJournals = 1,
         likes = 45
     )
@@ -221,9 +225,7 @@ fun UserNavigation(
                     onProfile = {
                         navController.navigate(Profile)
                     },
-                    onSearch = {
-                        navController.navigate(Explore)
-                    },
+                    onSearch = {},
                     onFriendClick = { friendUid ->
                         selectedFriend = friendUsers.find { friend ->
                             friend.uid == friendUid
@@ -244,8 +246,12 @@ fun UserNavigation(
 
             composable<FriendProfile> {
                 selectedFriend?.let { friend ->
+
+                    val isFriend = friend.uid in user.friends
+
                     ProfileScreen(
                         user = friend,
+                        isFriend = isFriend,
                         journals = selectedFriendJournals,
                         isCurrentUser = false,
                         onJournalClick = { clickedJournal ->
@@ -256,19 +262,47 @@ fun UserNavigation(
                             navController.popBackStack()
                         },
                         onEditClick = {},
+
+                        onAddFriendClick = {
+                            val updatedFriends =
+                                if (friend.uid in user.friends) {
+                                    user.friends
+                                        .filter { friendUid ->
+                                            friendUid != friend.uid
+                                        }
+                                        .toMutableList()
+                                } else {
+                                    (
+                                            user.friends + friend.uid
+                                            ).toMutableList()
+                                }
+
+                            val updatedUser = user.copy(
+                                friends = updatedFriends
+                            )
+
+                            user = updatedUser
+
+                            scope.launch {
+                                try {
+                                    UserRepo.saveUser(updatedUser)
+                                } catch (error: Exception) {
+                                    println(
+                                        error.message
+                                            ?: "Could not update friend"
+                                    )
+                                }
+                            }
+                        },
                         onSettingsClick = {}
                     )
                 }
             }
 
             composable<Explore> {
-                ExpScreen(
-                    journals = journals + friendJournals,
-                    onJournalClick = { clickedJournal ->
-                        selectedJournal = clickedJournal
-                        navController.navigate(JournalDetail)
-                    }
-                )
+                Surface {
+                    Text("Explore Screen Placeholder")
+                }
             }
 
 
@@ -340,6 +374,7 @@ fun UserNavigation(
             composable<Profile> {
                 ProfileScreen(
                     user = user,
+                    isFriend = false,
                     journals = journals,
                     isCurrentUser = true,
                     onJournalClick = { clickedJournal ->
@@ -348,6 +383,7 @@ fun UserNavigation(
                     },
                     onBack = { navController.popBackStack() },
                     onEditClick = { navController.navigate(EditProfile) },
+                    onAddFriendClick = {},
                     onSettingsClick = { /* fill in later */ }
                 )
             }
@@ -391,16 +427,6 @@ fun UserNavigation(
                     },
                     onBack = {
                         navController.popBackStack()
-                    }
-                )
-            }
-
-            composable<Explore> {
-                ExpScreen(
-                    journals = journals + friendJournals,
-                    onJournalClick = { clickedJournal ->
-                        selectedJournal = clickedJournal
-                        navController.navigate(JournalDetail)
                     }
                 )
             }

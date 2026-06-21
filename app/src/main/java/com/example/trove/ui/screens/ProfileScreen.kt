@@ -36,13 +36,24 @@ import androidx.compose.foundation.lazy.grid.items
 @Composable
 fun ProfileScreen(
     user: User,
+    isFriend: Boolean,
     journals: List<Journal>,
     isCurrentUser: Boolean,
     onJournalClick: (Journal) -> Unit,
     onBack: () -> Unit,
     onEditClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onAddFriendClick: () -> Unit
 ) {
+
+    val journalCount = journals.size
+
+    val totalLikes = journals.sumOf { journal ->
+        journal.likes
+    }
+
+    val countryCount = user.countriesList.size
+    val friendCount = user.friends.size
 
     Scaffold(
         topBar = {
@@ -80,8 +91,14 @@ fun ProfileScreen(
             ) {
                 UserProfileCard(
                     user = user,
+                    isFriend = isFriend,
+                    journalCount = journalCount,
+                    countryCount = countryCount,
+                    totalLikes = totalLikes,
+                    friendCount = friendCount,
                     isCurrentUser = isCurrentUser,
                     onEditClick = onEditClick,
+                    onAddFriendClick = onAddFriendClick,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -143,6 +160,7 @@ fun ProfileScreenPreview() {
             numJournals = 2,
             likes = 558
         ),
+        isFriend = false,
         journals = listOf(
             Journal(
                 id = "1",
@@ -163,6 +181,7 @@ fun ProfileScreenPreview() {
         onJournalClick = {},
         onBack = {},
         onEditClick = {},
+        onAddFriendClick = {},
         onSettingsClick = {}
     )
 }

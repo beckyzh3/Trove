@@ -25,8 +25,14 @@ import com.example.trove.User
 @Composable
 fun UserProfileCard(
     user: User,
+    isFriend: Boolean,
+    journalCount: Int,
+    countryCount: Int,
+    totalLikes: Int,
+    friendCount: Int,
     isCurrentUser: Boolean,
     onEditClick: () -> Unit,
+    onAddFriendClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -60,8 +66,13 @@ fun UserProfileCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 UserStatBar(
-                    user = user,
-                    modifier = Modifier.padding(16.dp)
+                    journalCount = journalCount,
+                    countryCount = countryCount,
+                    totalLikes = totalLikes,
+                    friendCount = friendCount,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 )
             }
 
@@ -71,6 +82,19 @@ fun UserProfileCard(
                     modifier = Modifier.align(Alignment.TopEnd),
                 ) {
                     Text(text = "Edit Profile")
+                }
+            } else {
+                OutlinedButton(
+                    onClick = onAddFriendClick,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Text(
+                        if (isFriend) {
+                            "Friends"
+                        } else {
+                            "Add Friend"
+                        }
+                    )
                 }
             }
         }
@@ -88,13 +112,15 @@ fun UserProfileCardPreview() {
             username = "beckzh3",
             name = "Becky Zheng",
             bio = "hiii",
-            countriesList = mutableListOf("Italy", "Greece", "Spain"),
-            friends = mutableListOf("Bob", "Kristen", "Sophie"),
-            numJournals = 3,
-            likes = 558
         ),
+        isFriend = false,
+        journalCount = 3,
+        countryCount = 3,
+        totalLikes = 558,
+        friendCount = 3,
         isCurrentUser = true,
         onEditClick = {},
+        onAddFriendClick = {},
         modifier = Modifier.padding(16.dp)
     )
 }
