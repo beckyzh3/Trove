@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.example.trove.data.UserRepo
 import kotlinx.coroutines.launch
 import com.example.trove.ui.screens.ExpScreen
+import com.example.trove.ui.screens.NotificationsScreen
 
 @Composable
 fun UserNavigation(
@@ -229,6 +230,9 @@ fun UserNavigation(
                     onSearch = {
                         navController.navigate(Explore)
                     },
+                    onNotifications = {
+                        navController.navigate(Notifications)
+                    },
                     onFriendClick = { friendUid ->
                         selectedFriend = friendUsers.find { friend ->
                             friend.uid == friendUid
@@ -380,7 +384,14 @@ fun UserNavigation(
                     }
                 )
             }
+            composable<Notifications> {
 
+                NotificationsScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
             composable<Profile> {
                 ProfileScreen(
                     user = user,

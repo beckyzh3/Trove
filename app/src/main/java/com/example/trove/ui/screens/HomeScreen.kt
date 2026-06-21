@@ -35,6 +35,7 @@ fun HomeScreen(
     onSearch: () -> Unit,
     onExplore: () -> Unit,
     onJournals: () -> Unit,
+    onNotifications: () -> Unit,
     onFriendClick: (String) -> Unit,
     onFriendJournalClick: (Journal) -> Unit
 ) {
@@ -57,6 +58,7 @@ fun HomeScreen(
                             modifier = Modifier.size(32.dp)
                         )
                     }
+                    IconButton(onClick = onNotifications){}
                 }
             )
         }
@@ -392,6 +394,7 @@ fun HomeScreenPreview() {
             onSearch = {},
             onExplore = {},
             onJournals = {},
+            onNotifications = {},
             onFriendClick = {},
             onFriendJournalClick = {}
         )

@@ -33,4 +33,6 @@ object EditJournal
 object JournalDetail
 
 @Serializable
+object Notifications
+@Serializable
 object JournalViews
