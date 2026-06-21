@@ -23,10 +23,14 @@ import com.example.trove.ui.screens.LoginScreen
 import com.example.trove.ui.theme.TroveTheme
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // enable and re-enable to test sign in
+        // FirebaseAuth.getInstance().signOut()
         enableEdgeToEdge()
         setContent {
             TroveTheme {
