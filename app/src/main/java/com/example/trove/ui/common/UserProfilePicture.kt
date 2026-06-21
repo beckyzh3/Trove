@@ -1,7 +1,6 @@
 package com.example.trove.ui.common
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,27 +14,42 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
+import coil3.compose.AsyncImage
+import com.example.trove.R
 
 @Composable
 fun UserProfilePicture (
+    profilePicture: String,
     modifier: Modifier = Modifier
 ){
-    // placeholder pfp for now
-    // eventually change to variable -> function -> upload
-    val image = painterResource(id = com.example.trove.R.drawable.catpfp)
-
     Box(
-        modifier = Modifier.size(120.dp)
+        modifier = modifier
+            .size(120.dp)
+            .clip(CircleShape)
     ) {
-        Image(
-            painter = image,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(CircleShape)
-        )
+        if (profilePicture.isBlank()) {
+            Image(
+                painter = painterResource(
+                    id = R.drawable.catpfp
+                ),
+                contentDescription = "Default profile picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            AsyncImage(
+                model = profilePicture,
+                contentDescription = "Profile picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                fallback = painterResource(
+                    id = R.drawable.catpfp
+                ),
+                error = painterResource(
+                    id = R.drawable.catpfp
+                )
+            )
+        }
 
     }
 }
@@ -43,5 +57,7 @@ fun UserProfilePicture (
 @Preview(showBackground = true)
 @Composable
 fun UserProfilePicturePreview() {
-    UserProfilePicture()
+    UserProfilePicture(
+        profilePicture = ""
+    )
 }

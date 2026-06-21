@@ -324,7 +324,8 @@ fun UserNavigation(
                         val journalWithOwner = createdJournal.copy(
                             id = (journals.size + 1).toString(),
                             ownerId = user.uid,
-                            ownerName = user.name
+                            ownerName = user.name,
+                            ownerProfilePicture = user.profilePicture
                         )
 
                         journals = journals + journalWithOwner
@@ -420,10 +421,21 @@ fun UserNavigation(
                     mode = ProfileFormMode.EDIT,
                     onSave = { updatedUser ->
                         user = updatedUser
+
+                        scope.launch {
+                            try {
+                                UserRepo.saveUser(updatedUser)
+                            } catch (error: Exception) {
+                                println(
+                                    error.message
+                                        ?: "Could not save profile"
+                                )
+                            }
+                        }
+
                         navController.popBackStack()
                     },
                     onCancel = { navController.popBackStack() },
-                    onProfilePictureClick = { /* Open profile photo picker */ }
                 )
             }
 

@@ -78,7 +78,7 @@ fun JournalFormScreen(
 
     val isFormValid =
         isNameValid &&
-                isLocationValid &&
+                isLocationValid &&  
                 entries.isNotEmpty() &&
                 areEntriesValid
 

@@ -22,6 +22,7 @@ import com.example.trove.R
 import com.example.trove.User
 import com.example.trove.ui.common.ImagePlaceholder
 import com.example.trove.ui.common.TroveTopBar
+import com.example.trove.ui.common.UserProfilePicture
 import com.example.trove.ui.theme.TroveTheme
 
 
@@ -51,18 +52,10 @@ fun HomeScreen(
                     }
 
                     IconButton(onClick = onProfile) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(MaterialTheme.colorScheme.primary, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = user.name.take(1),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
+                        UserProfilePicture(
+                            profilePicture = user.profilePicture,
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
                 }
             )
@@ -250,20 +243,11 @@ fun FriendJournalCard(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // profile photo placeholder
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = journal.ownerName.take(1),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+
+                UserProfilePicture(
+                    profilePicture = journal.ownerProfilePicture,
+                    modifier = Modifier.size(56.dp)
+                )
 
                 Spacer(modifier = Modifier.width(12.dp))
 

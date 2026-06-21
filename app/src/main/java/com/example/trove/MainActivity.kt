@@ -170,9 +170,6 @@ fun TroveApp() {
                     appUser = null
                     needsProfile = false
                 },
-                onProfilePictureClick = {
-                    // connect photo picker later
-                }
             )
         }
     } else {

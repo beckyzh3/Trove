@@ -30,8 +30,13 @@ import androidx.compose.ui.unit.dp
 import com.example.trove.R
 import com.example.trove.User
 import com.example.trove.UserSaver
-import com.example.trove.ui.common.ProfilePicturePlaceholder
 import com.example.trove.ui.common.TroveTopBar
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.compose.ui.platform.LocalContext
+import com.example.trove.ui.common.UserProfilePicture
 
 enum class ProfileFormMode {
     CREATE,
@@ -44,11 +49,34 @@ fun ProfileFormScreen(
     mode: ProfileFormMode,
     onSave: (User) -> Unit,
     onCancel: () -> Unit,
-    onProfilePictureClick: () -> Unit
 ) {
     var draftProfile by rememberSaveable(stateSaver = UserSaver) {
         mutableStateOf(initialProfile)
     }
+
+    val context = LocalContext.current
+
+    val profilePicturePicker =
+        rememberLauncherForActivityResult(
+            contract = PickVisualMedia()
+        ) { selectedUri ->
+
+            if (selectedUri != null) {
+                try {
+                    context.contentResolver
+                        .takePersistableUriPermission(
+                            selectedUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        )
+                } catch (_: SecurityException) {
+                    // safe after app or device restarts
+                }
+
+                draftProfile = draftProfile.copy(
+                    profilePicture = selectedUri.toString()
+                )
+            }
+        }
 
     val showDiscardDialog = rememberSaveable { mutableStateOf(false) }
 
@@ -153,11 +181,17 @@ fun ProfileFormScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ProfilePicturePlaceholder(
+
+            UserProfilePicture(
+                profilePicture = draftProfile.profilePicture,
                 modifier = Modifier
                     .size(120.dp)
                     .clickable {
-                        onProfilePictureClick()
+                        profilePicturePicker.launch(
+                            PickVisualMediaRequest(
+                                PickVisualMedia.ImageOnly
+                            )
+                        )
                     }
             )
 
@@ -254,8 +288,7 @@ fun CreateProfileFormPreview() {
         ),
         mode = ProfileFormMode.CREATE,
         onSave = {},
-        onCancel = {},
-        onProfilePictureClick = {}
+        onCancel = {}
     )
 }
 
@@ -271,7 +304,6 @@ fun EditProfileFormPreview() {
         ),
         mode = ProfileFormMode.EDIT,
         onSave = {},
-        onCancel = {},
-        onProfilePictureClick = {}
+        onCancel = {}
     )
 }
