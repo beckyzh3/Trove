@@ -21,14 +21,13 @@ import com.example.trove.data.signInWithGoogle
 import com.example.trove.ui.navigation.UserNavigation
 import com.example.trove.ui.screens.LoginScreen
 import com.example.trove.ui.theme.TroveTheme
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
+import android.util.Log
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContent {
             TroveTheme {
                 TroveApp()

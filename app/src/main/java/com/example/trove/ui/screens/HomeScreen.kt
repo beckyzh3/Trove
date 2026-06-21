@@ -29,10 +29,13 @@ import com.example.trove.ui.theme.TroveTheme
 @Composable
 fun HomeScreen(
     user: User,
+    friendsJournals: List<Journal>,
     onProfile: () -> Unit,
     onSearch: () -> Unit,
     onExplore: () -> Unit,
-    onJournals: () -> Unit
+    onJournals: () -> Unit,
+    onFriendClick: (String) -> Unit,
+    onFriendJournalClick: (Journal) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val firstName = user.name.split(" ").firstOrNull() ?: user.name
@@ -108,7 +111,11 @@ fun HomeScreen(
 
             // Friends' Journals Section
             SectionHeader(title = "Friends' Journals")
-            FriendsJournalsList()
+            FriendsJournalsList(
+                journals = friendsJournals,
+                onFriendClick = onFriendClick,
+                onJournalClick = onFriendJournalClick
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -188,48 +195,41 @@ fun SectionHeader(title: String) {
 }
 
 @Composable
-fun FriendsJournalsList() {
-    val dummyFriendsJournals = listOf(
-        Journal(
-            ownerName = "Alice Smith",
-            name = "Paris Getaway",
-            location = "Paris, France",
-            isPublic = true,
-            theme = "Autumn Breeze",
-            likes = 45
-        ),
-        Journal(
-            ownerName = "Bob Jenkins",
-            name = "Desert Trek",
-            location = "Sahara, Morocco",
-            isPublic = false,
-            theme = "Sand & Sun",
-            likes = 32
-        ),
-        Journal(
-            ownerName = "Charlie Day",
-            name = "Alpine Skies",
-            location = "Swiss Alps",
-            isPublic = true,
-            theme = "Cold Peak",
-            likes = 89
-        )
-    )
-
+fun FriendsJournalsList(
+    journals: List<Journal>,
+    onFriendClick: (String) -> Unit,
+    onJournalClick: (Journal) -> Unit
+) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.height(380.dp)
     ) {
-        items(dummyFriendsJournals) { journal ->
-            FriendJournalCard(journal)
+        items(
+            items = journals,
+            key = { journal -> journal.id }
+        ) { journal ->
+            FriendJournalCard(
+                journal = journal,
+                onFriendClick = {
+                    onFriendClick(journal.ownerId)
+                },
+                onJournalClick = {
+                    onJournalClick(journal)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun FriendJournalCard(journal: Journal) {
+fun FriendJournalCard(
+    journal: Journal,
+    onFriendClick: () -> Unit,
+    onJournalClick: () -> Unit
+) {
     Card(
+        onClick = onJournalClick,
         modifier = Modifier
             .width(300.dp)
             .fillMaxHeight(),
@@ -244,10 +244,13 @@ fun FriendJournalCard(journal: Journal) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        onFriendClick()
+                    }
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Profile Photo Placeholder
+                // profile photo placeholder
                 Box(
                     modifier = Modifier
                         .size(56.dp)
@@ -276,9 +279,11 @@ fun FriendJournalCard(journal: Journal) {
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier
+                            .padding(16.dp)
                     ) {
                         Text(
                             text = if (journal.isPublic) "Public" else "Private",
@@ -302,9 +307,11 @@ fun FriendJournalCard(journal: Journal) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1.2f) 
+                    .weight(1f)
             ) {
-                ImagePlaceholder(modifier = Modifier.fillMaxSize())
+                ImagePlaceholder(
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
@@ -381,11 +388,28 @@ fun TrendingJournalCard(journal: Journal) {
 fun HomeScreenPreview() {
     TroveTheme {
         HomeScreen(
-            user = User(name = "Becky Zheng"),
+            user = User(
+                uid = "beck-uid",
+                name = "Becky Zheng"),
+            friendsJournals = listOf(
+                Journal(
+                    id = "alice-journal-1",
+                    ownerId = "alice-uid",
+                    ownerName = "Alice Smith",
+                    name = "Paris Getaway",
+                    location = "Paris, France",
+                    routeSummary = "Montmartre → Louvre → Eiffel Tower",
+                    isPublic = true,
+                    theme = "Autumn Breeze",
+                    likes = 45
+                )
+            ),
             onProfile = {},
             onSearch = {},
             onExplore = {},
-            onJournals = {}
+            onJournals = {},
+            onFriendClick = {},
+            onFriendJournalClick = {}
         )
     }
 }

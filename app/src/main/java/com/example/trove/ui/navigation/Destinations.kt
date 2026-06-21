@@ -18,6 +18,9 @@ object Map
 object Profile
 
 @Serializable
+object FriendProfile
+
+@Serializable
 object CreateProfile
 
 @Serializable

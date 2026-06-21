@@ -20,6 +20,7 @@ data class User(
 val UserSaver = mapSaver(
     save = { user ->
         mapOf(
+            "uid" to user.uid,
             "username" to user.username,
             "name" to user.name,
             "bio" to user.bio,
@@ -33,6 +34,7 @@ val UserSaver = mapSaver(
     },
     restore = { map ->
         User(
+            uid = map["uid"] as? String ?: "",
             username = map["username"] as? String ?: "",
             name = map["name"] as? String ?: "",
             bio = map["bio"] as? String ?: "",
