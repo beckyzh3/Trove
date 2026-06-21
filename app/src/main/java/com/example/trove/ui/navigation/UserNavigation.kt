@@ -33,6 +33,7 @@ import com.example.trove.ui.screens.ProfileScreen
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.trove.data.UserRepo
 import kotlinx.coroutines.launch
+import com.example.trove.ui.screens.ExpScreen
 
 @Composable
 fun UserNavigation(
@@ -225,7 +226,9 @@ fun UserNavigation(
                     onProfile = {
                         navController.navigate(Profile)
                     },
-                    onSearch = {},
+                    onSearch = {
+                        navController.navigate(Explore)
+                    },
                     onFriendClick = { friendUid ->
                         selectedFriend = friendUsers.find { friend ->
                             friend.uid == friendUid
@@ -300,8 +303,14 @@ fun UserNavigation(
             }
 
             composable<Explore> {
-                Surface {
-                    Text("Explore Screen Placeholder")
+                composable<Explore> {
+                    ExpScreen(
+                        journals = journals + friendJournals,
+                        onJournalClick = { clickedJournal ->
+                            selectedJournal = clickedJournal
+                            navController.navigate(JournalDetail)
+                        }
+                    )
                 }
             }
 
