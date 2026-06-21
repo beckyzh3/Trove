@@ -35,15 +35,26 @@ fun ExpScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("Journals") }
 
+
     val publicJournals = journals.filter { it.isPublic }
 
-    val searchResults = publicJournals.filter { journal ->
+    val searchResults = journals.filter { journal ->
+        val query = searchQuery.trim()
+
         when (selectedFilter) {
-            "Places" -> journal.location.contains(searchQuery, ignoreCase = true)
-            "People" -> journal.ownerName.contains(searchQuery, ignoreCase = true)
-            else -> journal.name.contains(searchQuery, ignoreCase = true) ||
-                    journal.location.contains(searchQuery, ignoreCase = true) ||
-                    journal.ownerName.contains(searchQuery, ignoreCase = true)
+            "Journals" -> {
+                query.isBlank() || journal.name.contains(query, ignoreCase = true)
+            }
+
+            "Places" -> {
+                query.isBlank() || journal.location.contains(query, ignoreCase = true)
+            }
+
+            "People" -> {
+                query.isBlank() || journal.ownerName.contains(query, ignoreCase = true)
+            }
+
+            else -> true
         }
     }
 
@@ -101,7 +112,7 @@ fun ExpScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                SectionHeader(title = "Search Results")
+                SectionHeader(title = "$selectedFilter Results")
             }
 
             items(
