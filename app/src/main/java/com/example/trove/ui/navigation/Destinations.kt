@@ -9,7 +9,7 @@ object Home
 object Explore
 
 @Serializable
-object CreateJournal
+object CreateTrip
 
 @Serializable
 object Map
@@ -27,12 +27,13 @@ object CreateProfile
 object EditProfile
 
 @Serializable
-object EditJournal
+object EditTrip
 
 @Serializable
-object JournalDetail
+object TripDetail  // Trip detail screen (Journal | Map | Photos tabs)
 
 @Serializable
+object TripList
 object Notifications
 @Serializable
 object JournalViews

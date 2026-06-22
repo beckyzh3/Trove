@@ -1,8 +1,10 @@
 package com.example.trove.ui.common
 
+import androidx.compose.foundation.background
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
-import com.example.trove.Journal
+import com.example.trove.Trip
+import com.example.trove.displayCoverUrl
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,13 +17,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.trove.ui.theme.TroveTheme
 
 @Composable
-fun JournalProfileCard(
-    journal: Journal,
+fun TripProfileCard(
+    trip: Trip,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 )
@@ -38,16 +41,25 @@ fun JournalProfileCard(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            ImagePlaceholder(
-                modifier = Modifier.fillMaxSize()
+            TripPhotoImage(
+                url = trip.displayCoverUrl(),
+                modifier = Modifier.fillMaxSize(),
+                contentDescription = trip.name
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.35f))
             )
 
             Text(
-                text = journal.name,
+                text = trip.name,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(12.dp),
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                color = Color.White
             )
         }
     }
@@ -55,10 +67,10 @@ fun JournalProfileCard(
 
 @Preview(showBackground = true)
 @Composable
-fun JournalProfileCardPreview() {
+fun TripProfileCardPreview() {
     TroveTheme {
-        JournalProfileCard(
-            journal = Journal(
+        TripProfileCard(
+            trip = Trip(
                 id = "1",
                 name = "Italy Trip",
                 location = "Rome, Italy",

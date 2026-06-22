@@ -23,17 +23,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.trove.Journal
-import com.example.trove.ui.common.JournalPreviewCard
+import com.example.trove.Trip
+import com.example.trove.ui.common.TripPreviewCard
 import com.example.trove.ui.common.TroveTopBar
 
 @Composable
 fun ExpScreen(
-    journals: List<Journal>,
-    onJournalClick: (Journal) -> Unit
+    trips: List<Trip>,
+    onTripClick: (Trip) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedFilter by remember { mutableStateOf("Journals") }
+    var selectedFilter by remember { mutableStateOf("Trips") }
 
 
     val publicJournals = journals.filter { it.isPublic }
@@ -58,23 +58,19 @@ fun ExpScreen(
         }
     }
 
-    val trendingJournals = publicJournals.sortedByDescending { it.likes }
+    val trendingTrips = publicTrips.sortedByDescending { it.likes }
 
     Scaffold(
         topBar = {
-            TroveTopBar(
-                title = "Explore"
-            )
+            TroveTopBar(title = "Explore")
         }
     ) { innerPadding ->
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-
             item {
                 OutlinedTextField(
                     value = searchQuery,
@@ -82,9 +78,7 @@ fun ExpScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    placeholder = {
-                        Text("Search journals places and people")
-                    },
+                    placeholder = { Text("Search trips, places and people") },
                     shape = MaterialTheme.shapes.extraLarge
                 )
 
@@ -94,20 +88,9 @@ fun ExpScreen(
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    FilterButton(
-                        label = "Journals",
-                        onClick = { selectedFilter = "Journals" }
-                    )
-
-                    FilterButton(
-                        label = "Places",
-                        onClick = { selectedFilter = "Places" }
-                    )
-
-                    FilterButton(
-                        label = "People",
-                        onClick = { selectedFilter = "People" }
-                    )
+                    FilterButton(label = "Trips", onClick = { selectedFilter = "Trips" })
+                    FilterButton(label = "Places", onClick = { selectedFilter = "Places" })
+                    FilterButton(label = "People", onClick = { selectedFilter = "People" })
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -115,37 +98,26 @@ fun ExpScreen(
                 SectionHeader(title = "$selectedFilter Results")
             }
 
-            items(
-                items = searchResults,
-                key = { it.id }
-            ) { journal ->
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    JournalPreviewCard(
-                        journal = journal,
-                        onClick = {
-                            onJournalClick(journal)
-                        }
+            items(items = searchResults, key = { it.id }) { trip ->
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    TripPreviewCard(
+                        trip = trip,
+                        onClick = { onTripClick(trip) }
                     )
                 }
             }
 
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-
-                SectionHeader(title = "Trending Journals")
+                SectionHeader(title = "Trending Trips")
 
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.height(240.dp)
                 ) {
-                    items(
-                        items = trendingJournals,
-                        key = { it.id }
-                    ) { journal ->
-                        TrendingJournalCard(journal = journal)
+                    items(items = trendingTrips, key = { it.id }) { trip ->
+                        TrendingTripCard(trip = trip)
                     }
                 }
             }

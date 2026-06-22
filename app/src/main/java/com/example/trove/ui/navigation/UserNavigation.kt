@@ -1,37 +1,41 @@
 package com.example.trove.ui.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.trove.Journal
-import com.example.trove.JournalEntry
 import com.example.trove.R
+import com.example.trove.Trip
 import com.example.trove.User
 import com.example.trove.UserSaver
+import com.example.trove.data.BundledExploreTrips
+import com.example.trove.data.DemoTripSeeder
+import com.example.trove.data.TripRepository
+import com.example.trove.data.UserRepo
+import com.example.trove.ui.screens.ExpScreen
 import com.example.trove.ui.screens.HomeScreen
-import com.example.trove.ui.screens.JournalDetailScreen
-import com.example.trove.ui.screens.JournalFormMode
-import com.example.trove.ui.screens.JournalFormScreen
-import com.example.trove.ui.screens.JournalViewsScreen
 import com.example.trove.ui.screens.MapScreen
 import com.example.trove.ui.screens.ProfileFormMode
 import com.example.trove.ui.screens.ProfileFormScreen
 import com.example.trove.ui.screens.ProfileScreen
-import androidx.compose.runtime.rememberCoroutineScope
-import com.example.trove.data.UserRepo
+import com.example.trove.ui.screens.TripDetailScreen
+import com.example.trove.ui.screens.TripFormMode
+import com.example.trove.ui.screens.TripFormScreen
+import com.example.trove.ui.screens.TripListScreen
 import kotlinx.coroutines.launch
 import com.example.trove.ui.screens.ExpScreen
 import com.example.trove.ui.screens.NotificationsScreen
@@ -47,103 +51,96 @@ fun UserNavigation(
         mutableStateOf(initialUser)
     }
 
+    val repository = remember { TripRepository() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    /*
-    var journals by remember {
-    mutableStateOf(
-        listOf(
-            Journal(
-                id = "test-journal-1",
-                ownerId = "brooke-uid",
-                ownerName = "Brooke Cone",
-                name = "San Francisco Trip",
-                location = "San Francisco, CA",
-                routeSummary = "Golden Gate → Fisherman's Wharf → Pier 39",
-                entries = listOf(
-                    JournalEntry(
-                        id = "entry-1",
-                        dateRange = "Jun 18",
-                        text = "Golden Gate Bridge",
-                        latitude = 37.8199,
-                        longitude = -122.4783,
-                        timestamp = 1L
-                    ),
-                    JournalEntry(
-                        id = "entry-2",
-                        dateRange = "Jun 18",
-                        text = "Fisherman's Wharf",
-                        latitude = 37.8080,
-                        longitude = -122.4177,
-                        timestamp = 2L
-                    ),
-                    JournalEntry(
-                        id = "entry-3",
-                        dateRange = "Jun 18",
-                        text = "Pier 39",
-                        latitude = 37.8087,
-                        longitude = -122.4098,
-                        timestamp = 3L
-                    )
-                )
-            )
+    var trips by remember {
+        mutableStateOf(listOf<Trip>())
+    }
+
+    var exploreTrips by remember {
+        mutableStateOf(listOf<Trip>())
+    }
+
+    var selectedTrip by remember {
+        mutableStateOf<Trip?>(null)
+    }
+
+    suspend fun refreshTrips() {
+        if (user.uid.isBlank()) return
+        val fromFirestore = runCatching {
+            repository.getTripsWithEntries(user.uid)
+        }.getOrDefault(emptyList())
+        trips = BundledExploreTrips.applyAll(
+            context,
+            DemoTripSeeder.mergeLocalDemoTrip(fromFirestore, user.uid, user.name)
         )
-    )
-}
-
-     */
-
-
-
-    var journals by remember {
-        mutableStateOf(listOf<Journal>())
     }
 
-    var selectedJournal by remember {
-        mutableStateOf<Journal?>(null)
+    suspend fun refreshExploreTrips() {
+        val fromFirestore = runCatching {
+            repository.getPublicTrips()
+        }.getOrDefault(emptyList())
+        exploreTrips = BundledExploreTrips.applyAll(
+            context,
+            BundledExploreTrips.mergeWithFirestore(fromFirestore)
+        )
     }
 
+    fun applyTripUpdate(updated: Trip) {
+        val trip = BundledExploreTrips.applyTrip(context, updated)
+        trips = trips.map { if (it.id == trip.id) trip else it }
+        exploreTrips = exploreTrips.map { if (it.id == trip.id) trip else it }
+        if (selectedTrip?.id == trip.id) {
+            selectedTrip = trip
+        }
+    }
+
+    LaunchedEffect(user.uid) {
+        if (user.uid.isNotBlank()) {
+            runCatching {
+                DemoTripSeeder.ensureDemoTrips(
+                    repository = repository,
+                    ownerId = user.uid,
+                    ownerName = user.name
+                )
+            }
+        }
+        refreshTrips()
+        refreshExploreTrips()
+    }
 
     var selectedFriend by remember {
         mutableStateOf<User?>(null)
     }
 
-    var selectedFriendJournals by remember {
-        mutableStateOf(listOf<Journal>())
+    var selectedFriendTrips by remember {
+        mutableStateOf(listOf<Trip>())
     }
 
-    // fake friends
-    val alice = User(
-        uid = "alice-uid",
-        username = "alice",
-        name = "Alice Smith",
-        bio = "Collecting memories around the world.",
-        countriesList = mutableListOf("France", "Italy"),
-        friends = mutableListOf(),
-        numJournals = 1,
-        likes = 45
-    )
-
-    val aliceJournal = Journal(
-        id = "alice-journal-1",
-        ownerId = "alice-uid",
-        ownerName = "Alice Smith",
-        name = "Paris Getaway",
-        location = "Paris, France",
-        routeSummary = "Montmartre → Louvre → Eiffel Tower",
-        isPublic = true,
-        theme = "Autumn Breeze",
-        likes = 45
-    )
-
-    val friendUsers = listOf(alice)
-    val friendJournals = listOf(aliceJournal)
+    val friendUsers = listOf(BundledExploreTrips.demoFriendUser)
+    val friendTrips = exploreTrips.filter { it.ownerId != user.uid }
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    var isSavingTrip by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    suspend fun saveTripAndRefresh(trip: Trip) {
+        isSavingTrip = true
+        try {
+            repository.saveTripWithLocalMedia(context, trip)
+            refreshTrips()
+        } finally {
+            isSavingTrip = false
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
@@ -173,9 +170,9 @@ fun UserNavigation(
                 NavigationBarItem(
                     icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = "Add") },
                     label = { Text("Add") },
-                    selected = currentDestination?.hasRoute<CreateJournal>() == true,
+                    selected = currentDestination?.hasRoute<CreateTrip>() == true,
                     onClick = {
-                        navController.navigate(CreateJournal) {
+                        navController.navigate(CreateTrip) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
@@ -241,71 +238,139 @@ fun UserNavigation(
                         selectedFriendJournals = friendJournals.filter { journal ->
                             journal.ownerId == friendUid
                         }
+                    )
+                }
 
-                        navController.navigate(FriendProfile)
-                    },
-                    onFriendJournalClick = { clickedJournal ->
-                        selectedJournal = clickedJournal
-                        navController.navigate(JournalDetail)
-                    }
-                )
-            }
+                composable<FriendProfile> {
+                    selectedFriend?.let { friend ->
+                        val isFriend = friend.uid in user.friends
 
-            composable<FriendProfile> {
-                selectedFriend?.let { friend ->
+                        ProfileScreen(
+                            user = friend,
+                            isFriend = isFriend,
+                            trips = selectedFriendTrips,
+                            isCurrentUser = false,
+                            onTripClick = { clickedTrip ->
+                                selectedTrip = clickedTrip
+                                navController.navigate(TripDetail)
+                            },
+                            onBack = { navController.popBackStack() },
+                            onEditClick = {},
+                            onAddFriendClick = {
+                                val updatedFriends =
+                                    if (friend.uid in user.friends) {
+                                        user.friends.filter { friendUid -> friendUid != friend.uid }.toMutableList()
+                                    } else {
+                                        (user.friends + friend.uid).toMutableList()
+                                    }
 
-                    val isFriend = friend.uid in user.friends
+                                val updatedUser = user.copy(friends = updatedFriends)
+                                user = updatedUser
 
-                    ProfileScreen(
-                        user = friend,
-                        isFriend = isFriend,
-                        journals = selectedFriendJournals,
-                        isCurrentUser = false,
-                        onJournalClick = { clickedJournal ->
-                            selectedJournal = clickedJournal
-                            navController.navigate(JournalDetail)
-                        },
-                        onBack = {
-                            navController.popBackStack()
-                        },
-                        onEditClick = {},
-
-                        onAddFriendClick = {
-                            val updatedFriends =
-                                if (friend.uid in user.friends) {
-                                    user.friends
-                                        .filter { friendUid ->
-                                            friendUid != friend.uid
-                                        }
-                                        .toMutableList()
-                                } else {
-                                    (
-                                            user.friends + friend.uid
-                                            ).toMutableList()
+                                scope.launch {
+                                    try {
+                                        UserRepo.saveUser(updatedUser)
+                                    } catch (error: Exception) {
+                                        snackbarHostState.showSnackbar(
+                                            error.message ?: "Could not update friend"
+                                        )
+                                    }
                                 }
+                            },
+                            onSettingsClick = {}
+                        )
+                    }
+                }
 
-                            val updatedUser = user.copy(
-                                friends = updatedFriends
+                composable<Explore> {
+                    ExpScreen(
+                        trips = exploreTrips,
+                        onTripClick = { clickedTrip ->
+                            selectedTrip = clickedTrip
+                            navController.navigate(TripDetail)
+                        }
+                    )
+                }
+
+                composable<CreateTrip> {
+                    TripFormScreen(
+                        initialTrip = Trip(),
+                        mode = TripFormMode.CREATE,
+                        onSave = { createdTrip ->
+                            val tripWithOwner = createdTrip.copy(
+                                ownerId = user.uid,
+                                ownerName = user.name,
+                                ownerProfilePicture = user.profilePicture
                             )
-
-                            user = updatedUser
-
                             scope.launch {
                                 try {
-                                    UserRepo.saveUser(updatedUser)
-                                } catch (error: Exception) {
-                                    println(
-                                        error.message
-                                            ?: "Could not update friend"
+                                    saveTripAndRefresh(tripWithOwner)
+                                    navController.popBackStack()
+                                } catch (e: Exception) {
+                                    snackbarHostState.showSnackbar(
+                                        e.message ?: "Could not save trip."
                                     )
                                 }
                             }
                         },
-                        onSettingsClick = {}
+                        onCancel = { navController.popBackStack() }
                     )
                 }
-            }
 
+                composable<EditTrip> {
+                    selectedTrip?.let { trip ->
+                        TripFormScreen(
+                            initialTrip = trip,
+                            mode = TripFormMode.EDIT,
+                            onSave = { updatedTrip ->
+                                scope.launch {
+                                    try {
+                                        saveTripAndRefresh(updatedTrip)
+                                        val refreshed = BundledExploreTrips.applyAll(
+                                            context,
+                                            DemoTripSeeder.mergeLocalDemoTrip(
+                                                repository.getTripsWithEntries(user.uid),
+                                                user.uid,
+                                                user.name
+                                            )
+                                        )
+                                        trips = refreshed
+                                        selectedTrip = refreshed.find { it.id == updatedTrip.id }
+                                        navController.popBackStack()
+                                    } catch (e: Exception) {
+                                        snackbarHostState.showSnackbar(
+                                            e.message ?: "Could not save trip."
+                                        )
+                                    }
+                                }
+                            },
+                            onCancel = { navController.popBackStack() }
+                        )
+                    }
+                }
+
+                composable<Map> {
+                    val allEntries = trips.flatMap { it.entries }
+                    val tripPaths = trips.map { trip ->
+                        trip.entries
+                            .filter { it.latitude != 0.0 && it.longitude != 0.0 }
+                            .sortedBy { it.timestamp }
+                    }
+
+                    MapScreen(
+                        entries = allEntries,
+                        tripPaths = tripPaths,
+                        onPinClick = { entry ->
+                            val trip = trips.find { t ->
+                                t.entries.any { it.id == entry.id }
+                            }
+                            trip?.let {
+                                selectedTrip = it
+                                navController.navigate(TripDetail)
+                            }
+                        }
+                    )
+                }
             composable<Explore> {
                 ExpScreen(
                     journals = journals + friendJournals,
@@ -316,52 +381,82 @@ fun UserNavigation(
                 )
             }
 
+                composable<Profile> {
+                    ProfileScreen(
+                        user = user,
+                        isFriend = false,
+                        trips = trips,
+                        isCurrentUser = true,
+                        onTripClick = { clickedTrip ->
+                            selectedTrip = clickedTrip
+                            navController.navigate(TripDetail)
+                        },
+                        onBack = { navController.popBackStack() },
+                        onEditClick = { navController.navigate(EditProfile) },
+                        onAddFriendClick = {},
+                        onSettingsClick = { /* fill in later */ }
+                    )
+                }
 
-
-            composable<CreateJournal> {
-                JournalFormScreen(
-                    initialJournal = Journal(),
-                    mode = JournalFormMode.CREATE,
-                    onSave = { createdJournal ->
-                        val journalWithOwner = createdJournal.copy(
-                            id = (journals.size + 1).toString(),
-                            ownerId = user.uid,
-                            ownerName = user.name,
-                            ownerProfilePicture = user.profilePicture
-                        )
-
-                        journals = journals + journalWithOwner
-                        navController.popBackStack()
-                    },
-                    onCancel = { navController.popBackStack() },
-                    onAddPhotoClick = { /* Open photo picker */ }
-                )
-            }
-
-            composable<EditJournal> {
-                selectedJournal?.let { journal ->
-                    JournalFormScreen(
-                        initialJournal = journal,
-                        mode = JournalFormMode.EDIT,
-                        onSave = { updatedJournal ->
-
-                            journals = journals.map { existingJournal ->
-                                if (existingJournal.id == updatedJournal.id) {
-                                    updatedJournal
-                                } else {
-                                    existingJournal
+                composable<TripDetail> {
+                    selectedTrip?.let { trip ->
+                        val onTripUpdated: (Trip) -> Unit = { updatedTrip ->
+                            scope.launch {
+                                try {
+                                    saveTripAndRefresh(updatedTrip)
+                                    selectedTrip = trips.find { it.id == updatedTrip.id }
+                                        ?: updatedTrip
+                                } catch (e: Exception) {
+                                    snackbarHostState.showSnackbar(
+                                        e.message
+                                            ?: "Could not save trip."
+                                    )
                                 }
                             }
-
-                            selectedJournal = updatedJournal
-                            navController.popBackStack()
-                        },
-                        onCancel = {
-                            navController.popBackStack()
-                        },
-                        onAddPhotoClick = {
-                            // connect photo picker later
                         }
+
+                        TripDetailScreen(
+                            trip = trip,
+                            currentUserId = user.uid,
+                            isOwner = trip.ownerId == user.uid,
+                            onBack = { navController.popBackStack() },
+                            onEditClick = { navController.navigate(EditTrip) },
+                            onPhotoTaken = onTripUpdated,
+                            onVoiceMemoRecorded = onTripUpdated,
+                            onLikeToggle = {
+                                scope.launch {
+                                    try {
+                                        val updated = repository.toggleLike(trip.id, user.uid)
+                                        applyTripUpdate(updated)
+                                    } catch (e: Exception) {
+                                        snackbarHostState.showSnackbar(
+                                            e.message ?: "Could not update like"
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+
+                composable<EditProfile> {
+                    ProfileFormScreen(
+                        initialProfile = user,
+                        mode = ProfileFormMode.EDIT,
+                        onSave = { updatedUser ->
+                            user = updatedUser
+                            scope.launch {
+                                try {
+                                    UserRepo.saveUser(updatedUser)
+                                } catch (error: Exception) {
+                                    snackbarHostState.showSnackbar(
+                                        error.message ?: "Could not save profile"
+                                    )
+                                }
+                            }
+                            navController.popBackStack()
+                        },
+                        onCancel = { navController.popBackStack() }
                     )
                 }
             }
@@ -409,56 +504,39 @@ fun UserNavigation(
 
 
 
-            composable<JournalDetail> {
-                selectedJournal?.let { journal ->
-                    JournalDetailScreen(
-                        journal = journal,
-                        isOwner = journal.ownerId == user.uid,
-                        onBack = {
-                            navController.popBackStack()
+                composable<TripList> {
+                    TripListScreen(
+                        trips = trips,
+                        onTripClick = { clickedTrip ->
+                            selectedTrip = clickedTrip
+                            navController.navigate(TripDetail)
                         },
-                        onEditClick = {
-                            navController.navigate(EditJournal)
-                        }
+                        onBack = { navController.popBackStack() }
                     )
                 }
             }
 
-            composable<EditProfile> {
-                ProfileFormScreen(
-                    initialProfile = user,
-                    mode = ProfileFormMode.EDIT,
-                    onSave = { updatedUser ->
-                        user = updatedUser
-
-                        scope.launch {
-                            try {
-                                UserRepo.saveUser(updatedUser)
-                            } catch (error: Exception) {
-                                println(
-                                    error.message
-                                        ?: "Could not save profile"
-                                )
-                            }
+            if (isSavingTrip) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        tonalElevation = 6.dp
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
+                            Text(
+                                text = "Saving trip…",
+                                modifier = Modifier.padding(top = 12.dp)
+                            )
                         }
-
-                        navController.popBackStack()
-                    },
-                    onCancel = { navController.popBackStack() },
-                )
-            }
-
-            composable<JournalViews> {
-                JournalViewsScreen(
-                    journals = journals,
-                    onJournalClick = { clickedJournal ->
-                        selectedJournal = clickedJournal
-                        navController.navigate(JournalDetail)
-                    },
-                    onBack = {
-                        navController.popBackStack()
                     }
-                )
+                }
             }
         }
     }

@@ -19,26 +19,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.trove.Journal
+import com.example.trove.Trip
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.trove.JournalEntry
-import com.example.trove.ui.common.JournalPreviewCard
+import com.example.trove.TripEntry
+import com.example.trove.ui.common.TripPreviewCard
 import com.example.trove.ui.common.TroveTopBar
 import com.example.trove.ui.theme.TroveTheme
 
 @Composable
-fun JournalViewsScreen(
-    journals: List<Journal>,
-    onJournalClick: (Journal) -> Unit,
+fun TripListScreen(
+    trips: List<Trip>,
+    onTripClick: (Trip) -> Unit,
     onBack: () -> Unit
 ) {
-
-    // show all journals in a list
 
     Scaffold (
         topBar = {
             TroveTopBar(
-                title = "Journals",
+                title = "Trips",
                 showBack = true,
                 onBack = onBack
             )
@@ -54,14 +52,14 @@ fun JournalViewsScreen(
         ) {
 
             items(
-                items = journals,
+                items = trips,
                 key = { it.id }
-            ) { journal ->
+            ) { trip ->
 
-                JournalPreviewCard(
-                    journal = journal,
+                TripPreviewCard(
+                    trip = trip,
                     onClick = {
-                        onJournalClick(journal)
+                        onTripClick(trip)
                     }
                 )
             }
@@ -72,25 +70,25 @@ fun JournalViewsScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun JournalViewsScreenPreview() {
+fun TripListScreenPreview() {
     TroveTheme {
-        JournalViewsScreen(
-            journals = listOf(
-                Journal(
+        TripListScreen(
+            trips = listOf(
+                Trip(
                     id = "1",
                     name = "Greece and Italy",
                     location = "Athens, Rome, Florence",
                     routeSummary = "Athens → Rome → Florence",
                     likes = 558
                 ),
-                Journal(
+                Trip(
                     id = "2",
                     name = "Japan Adventure",
                     location = "Tokyo, Kyoto, Osaka",
                     routeSummary = "Tokyo → Kyoto → Osaka",
                     likes = 240
                 ),
-                Journal(
+                Trip(
                     id = "3",
                     name = "Summer in Spain",
                     location = "Barcelona and Madrid",
@@ -98,7 +96,7 @@ fun JournalViewsScreenPreview() {
                     likes = 120
                 )
             ),
-            onJournalClick = {},
+            onTripClick = {},
             onBack = {}
         )
     }

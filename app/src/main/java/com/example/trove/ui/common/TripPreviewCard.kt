@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -14,15 +15,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.trove.Journal
+import com.example.trove.Trip
+import com.example.trove.displayCoverUrl
 
 @Composable
-fun JournalPreviewCard(
-    journal: Journal,
+fun TripPreviewCard(
+    trip: Trip,
     onClick: () -> Unit
 ) {
-
-    // preview card for one journal
 
     Card(
         modifier = Modifier
@@ -36,40 +36,52 @@ fun JournalPreviewCard(
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            TripPhotoImage(
+                url = trip.displayCoverUrl(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp),
+                contentDescription = trip.name
+            )
+
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
 
             Text(
-                text = journal.name,
+                text = trip.name,
                 style = MaterialTheme.typography.titleLarge
             )
 
             Text(
-                text = journal.location,
+                text = trip.location,
                 style = MaterialTheme.typography.bodyMedium
             )
 
             HorizontalDivider()
 
             Text(
-                text = journal.routeSummary,
+                text = trip.routeSummary,
                 style = MaterialTheme.typography.bodySmall
             )
 
             Text(
-                text = "${journal.likes} likes",
+                text = "${trip.likes} likes",
                 style = MaterialTheme.typography.bodySmall
             )
+            }
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun JournalPreviewCardPreview() {
-    JournalPreviewCard(
-        journal = Journal(
+fun TripPreviewCardPreview() {
+    TripPreviewCard(
+        trip = Trip(
             id = "1",
             name = "Greece and Italy",
             location = "Athens, Rome, Florence",

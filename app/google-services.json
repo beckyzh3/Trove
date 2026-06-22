@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "371626222252-938l5dfdje66uetnrftnkghhvm7o58f5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.trove",
+            "certificate_hash": "aa530ef50bfee7274cc1b535b551733916e1bab6"
+          }
+        },
+        {
           "client_id": "371626222252-kafo1r9615mjamqfkl8jdaekr8e44fhu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
