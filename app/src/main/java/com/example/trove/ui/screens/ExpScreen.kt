@@ -36,22 +36,22 @@ fun ExpScreen(
     var selectedFilter by remember { mutableStateOf("Trips") }
 
 
-    val publicJournals = journals.filter { it.isPublic }
+    val publicTrips = trips.filter { trip -> trip.isPublic }
 
-    val searchResults = journals.filter { journal ->
+    val searchResults = publicTrips.filter { trip ->
         val query = searchQuery.trim()
 
         when (selectedFilter) {
-            "Journals" -> {
-                query.isBlank() || journal.name.contains(query, ignoreCase = true)
+            "Trips" -> {
+                query.isBlank() || trip.name.contains(query, ignoreCase = true)
             }
 
             "Places" -> {
-                query.isBlank() || journal.location.contains(query, ignoreCase = true)
+                query.isBlank() || trip.location.contains(query, ignoreCase = true)
             }
 
             "People" -> {
-                query.isBlank() || journal.ownerName.contains(query, ignoreCase = true)
+                query.isBlank() || trip.ownerName.contains(query, ignoreCase = true)
             }
 
             else -> true
