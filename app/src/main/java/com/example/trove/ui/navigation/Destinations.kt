@@ -34,3 +34,6 @@ object TripDetail  // Trip detail screen (Journal | Map | Photos tabs)
 
 @Serializable
 object TripList
+object Notifications
+@Serializable
+object JournalViews

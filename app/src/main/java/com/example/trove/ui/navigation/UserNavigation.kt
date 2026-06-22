@@ -37,6 +37,8 @@ import com.example.trove.ui.screens.TripFormMode
 import com.example.trove.ui.screens.TripFormScreen
 import com.example.trove.ui.screens.TripListScreen
 import kotlinx.coroutines.launch
+import com.example.trove.ui.screens.ExpScreen
+import com.example.trove.ui.screens.NotificationsScreen
 
 @Composable
 fun UserNavigation(
@@ -204,30 +206,37 @@ fun UserNavigation(
             }
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            NavHost(
-                navController = navController,
-                startDestination = Home,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                composable<Home> {
-                    HomeScreen(
-                        user = user,
-                        friendsTrips = friendTrips,
-                        trendingTrips = exploreTrips.sortedByDescending { it.likes },
-                        onExplore = { navController.navigate(Explore) },
-                        onTrips = { navController.navigate(TripList) },
-                        onProfile = { navController.navigate(Profile) },
-                        onSearch = { navController.navigate(Explore) },
-                        onFriendClick = { friendUid ->
-                            selectedFriend = friendUsers.find { it.uid == friendUid }
-                                ?: BundledExploreTrips.friendProfile(friendUid, exploreTrips)
-                            selectedFriendTrips = exploreTrips.filter { it.ownerId == friendUid }
-                            navController.navigate(FriendProfile)
-                        },
-                        onFriendTripClick = { clickedTrip ->
-                            selectedTrip = clickedTrip
-                            navController.navigate(TripDetail)
+        NavHost(
+            navController = navController,
+            startDestination = Home,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable<Home> {
+                HomeScreen(
+                    user = user,
+                    friendsJournals = friendJournals,
+                    onExplore = {
+                        navController.navigate(Explore)
+                    },
+                    onJournals = {
+                        navController.navigate(JournalViews)
+                    },
+                    onProfile = {
+                        navController.navigate(Profile)
+                    },
+                    onSearch = {
+                        navController.navigate(Explore)
+                    },
+                    onNotifications = {
+                        navController.navigate(Notifications)
+                    },
+                    onFriendClick = { friendUid ->
+                        selectedFriend = friendUsers.find { friend ->
+                            friend.uid == friendUid
+                        }
+
+                        selectedFriendJournals = friendJournals.filter { journal ->
+                            journal.ownerId == friendUid
                         }
                     )
                 }
@@ -362,6 +371,15 @@ fun UserNavigation(
                         }
                     )
                 }
+            composable<Explore> {
+                ExpScreen(
+                    journals = journals + friendJournals,
+                    onJournalClick = { clickedJournal ->
+                        selectedJournal = clickedJournal
+                        navController.navigate(JournalDetail)
+                    }
+                )
+            }
 
                 composable<Profile> {
                     ProfileScreen(
@@ -441,6 +459,50 @@ fun UserNavigation(
                         onCancel = { navController.popBackStack() }
                     )
                 }
+            }
+
+            composable<Map> {
+                val allEntries = journals.flatMap { it.entries }
+
+                MapScreen(
+                    entries = allEntries,
+                    onPinClick = { entry ->
+                        val journal = journals.find { j ->
+                            j.entries.any { it.id == entry.id }
+                        }
+                        journal?.let {
+                            selectedJournal = it
+                            navController.navigate(JournalDetail)
+                        }
+                    }
+                )
+            }
+            composable<Notifications> {
+
+                NotificationsScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable<Profile> {
+                ProfileScreen(
+                    user = user,
+                    isFriend = false,
+                    journals = journals,
+                    isCurrentUser = true,
+                    onJournalClick = { clickedJournal ->
+                        selectedJournal = clickedJournal
+                        navController.navigate(JournalDetail)
+                    },
+                    onBack = { navController.popBackStack() },
+                    onEditClick = { navController.navigate(EditProfile) },
+                    onAddFriendClick = {},
+                    onSettingsClick = { /* fill in later */ }
+                )
+            }
+
+
 
                 composable<TripList> {
                     TripListScreen(
