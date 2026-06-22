@@ -307,15 +307,13 @@ fun UserNavigation(
             }
 
             composable<Explore> {
-                composable<Explore> {
-                    ExpScreen(
-                        journals = journals + friendJournals,
-                        onJournalClick = { clickedJournal ->
-                            selectedJournal = clickedJournal
-                            navController.navigate(JournalDetail)
-                        }
-                    )
-                }
+                ExpScreen(
+                    journals = journals + friendJournals,
+                    onJournalClick = { clickedJournal ->
+                        selectedJournal = clickedJournal
+                        navController.navigate(JournalDetail)
+                    }
+                )
             }
 
 
