@@ -15,7 +15,14 @@ fun Trip.locationStops(): List<TripEntry> =
 fun Trip.photoEntries(): List<TripEntry> =
     entries.filter { it.type == EntryType.PHOTO || it.photoUrl.isNotBlank() }
 
+fun Trip.isLikedBy(userId: String): Boolean =
+    userId.isNotBlank() && userId in likedBy
+
 fun Trip.allPhotoUrls(): List<String> {
     val fromEntries = photoEntries().mapNotNull { it.photoUrl.takeIf { url -> url.isNotBlank() } }
     return (photoUris + fromEntries).distinct()
 }
+
+fun Trip.displayCoverUrl(): String =
+    coverPhotoUrl.takeIf { it.isNotBlank() }
+        ?: allPhotoUrls().firstOrNull().orEmpty()

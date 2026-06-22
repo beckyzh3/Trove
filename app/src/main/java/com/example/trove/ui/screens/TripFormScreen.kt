@@ -48,8 +48,11 @@ import com.example.trove.TripEntry
 import com.example.trove.TripSaver
 import com.example.trove.R
 import com.example.trove.location.LocationHelper
-import com.example.trove.location.PhotoLocationHelper
+import com.example.trove.data.PhotoEntryHelper
+import com.example.trove.data.rememberCameraCaptureLauncher
+import com.example.trove.ui.common.TripPhotoActionBar
 import com.example.trove.ui.common.TripPhotoImage
+import com.example.trove.ui.common.VoiceMemoRecorder
 import com.example.trove.ui.common.TroveTopBar
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
@@ -101,7 +104,7 @@ fun TripFormScreen(
     val areEntriesValid = entries.all { entry ->
         when (entry.type) {
             EntryType.TEXT -> entry.dateRange.isNotBlank() && entry.text.isNotBlank()
-            EntryType.VOICE -> entry.dateRange.isNotBlank() && entry.text.isNotBlank()
+            EntryType.VOICE -> entry.dateRange.isNotBlank() && entry.voiceMemoUrl.isNotBlank()
             EntryType.PHOTO -> entry.dateRange.isNotBlank() && entry.photoUrl.isNotBlank()
             EntryType.LOCATION -> entry.latitude != 0.0 && entry.longitude != 0.0
         }
@@ -160,21 +163,25 @@ fun TripFormScreen(
 
     var pendingPhotoTarget by remember { mutableStateOf<PhotoPickTarget?>(null) }
 
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri: Uri? ->
-        uri?.let { picked ->
-            val coords = PhotoLocationHelper.getLatLng(context, picked)
-            when (val target = pendingPhotoTarget) {
+    fun applyPickedPhoto(picked: Uri, target: PhotoPickTarget) {
+        scope.launch {
+            when (target) {
                 is PhotoPickTarget.Entry -> {
                     val current = entries[target.index]
+                    val photoEntry = PhotoEntryHelper.createPhotoEntry(
+                        context = context,
+                        uri = picked,
+                        dateRange = current.dateRange.ifBlank { "New photo" }
+                    )
                     entries = entries.toMutableList().also {
                         it[target.index] = current.copy(
-                            photoUrl = picked.toString(),
-                            latitude = coords?.first ?: current.latitude,
-                            longitude = coords?.second ?: current.longitude,
+                            photoUrl = photoEntry.photoUrl,
+                            latitude = photoEntry.latitude.takeIf { lat -> lat != 0.0 }
+                                ?: current.latitude,
+                            longitude = photoEntry.longitude.takeIf { lng -> lng != 0.0 }
+                                ?: current.longitude,
                             timestamp = if (current.timestamp == 0L) {
-                                System.currentTimeMillis()
+                                photoEntry.timestamp
                             } else {
                                 current.timestamp
                             }
@@ -182,17 +189,22 @@ fun TripFormScreen(
                     }
                 }
                 PhotoPickTarget.NewEntry -> {
-                    entries = entries + TripEntry(
-                        id = UUID.randomUUID().toString(),
-                        type = EntryType.PHOTO,
-                        dateRange = "New photo",
-                        photoUrl = picked.toString(),
-                        latitude = coords?.first ?: 0.0,
-                        longitude = coords?.second ?: 0.0,
-                        timestamp = System.currentTimeMillis()
+                    entries = entries + PhotoEntryHelper.createPhotoEntry(
+                        context = context,
+                        uri = picked,
+                        dateRange = "New photo"
                     )
                 }
-                null -> Unit
+            }
+        }
+    }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        uri?.let { picked ->
+            pendingPhotoTarget?.let { target ->
+                applyPickedPhoto(picked, target)
             }
         }
         pendingPhotoTarget = null
@@ -203,6 +215,18 @@ fun TripFormScreen(
         photoPickerLauncher.launch(
             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
         )
+    }
+
+    val launchCamera = rememberCameraCaptureLauncher { uri ->
+        pendingPhotoTarget?.let { target ->
+            applyPickedPhoto(uri, target)
+        }
+        pendingPhotoTarget = null
+    }
+
+    fun launchCameraFor(target: PhotoPickTarget) {
+        pendingPhotoTarget = target
+        launchCamera()
     }
 
     var hasLocationPermission by remember {
@@ -366,7 +390,8 @@ fun TripFormScreen(
                         }
                     },
                     onUseCurrentLocation = { applyCurrentLocation(index) },
-                    onPickPhoto = { launchPhotoPicker(PhotoPickTarget.Entry(index)) }
+                    onPickPhoto = { launchPhotoPicker(PhotoPickTarget.Entry(index)) },
+                    onTakePhoto = { launchCameraFor(PhotoPickTarget.Entry(index)) }
                 )
             }
 
@@ -408,11 +433,23 @@ fun TripFormScreen(
                 Text("Add Location Stop")
             }
 
+            TripPhotoActionBar(
+                onOpenCamera = { launchCameraFor(PhotoPickTarget.NewEntry) },
+                onImport = { launchPhotoPicker(PhotoPickTarget.NewEntry) }
+            )
+
             Button(
-                onClick = { launchPhotoPicker(PhotoPickTarget.NewEntry) },
+                onClick = {
+                    entries = entries + TripEntry(
+                        id = UUID.randomUUID().toString(),
+                        type = EntryType.VOICE,
+                        dateRange = "Voice memo",
+                        timestamp = System.currentTimeMillis()
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Add Photo Entry")
+                Text("Add Voice Memo")
             }
         }
     }
@@ -425,13 +462,14 @@ fun TripEntryEditor(
     onEntryChange: (TripEntry) -> Unit,
     onDeleteClick: () -> Unit,
     onUseCurrentLocation: () -> Unit = {},
-    onPickPhoto: () -> Unit = {}
+    onPickPhoto: () -> Unit = {},
+    onTakePhoto: () -> Unit = {}
 ) {
     val isDateValid = entry.type == EntryType.LOCATION || entry.dateRange.isNotBlank()
     val hasPin = entry.latitude != 0.0 && entry.longitude != 0.0
     val isContentValid = when (entry.type) {
         EntryType.TEXT -> entry.text.isNotBlank()
-        EntryType.VOICE -> entry.text.isNotBlank()
+        EntryType.VOICE -> entry.voiceMemoUrl.isNotBlank()
         EntryType.PHOTO -> entry.photoUrl.isNotBlank()
         EntryType.LOCATION -> hasPin
     }
@@ -497,12 +535,17 @@ fun TripEntryEditor(
             }
 
             if (entry.type == EntryType.VOICE) {
-                OutlinedTextField(
-                    value = entry.voiceDuration,
-                    onValueChange = { onEntryChange(entry.copy(voiceDuration = it)) },
-                    label = { Text("Duration") },
-                    placeholder = { Text("1:24") },
-                    modifier = Modifier.fillMaxWidth()
+                VoiceMemoRecorder(
+                    voiceMemoUrl = entry.voiceMemoUrl,
+                    voiceDuration = entry.voiceDuration,
+                    onRecordingComplete = { url, duration ->
+                        onEntryChange(
+                            entry.copy(
+                                voiceMemoUrl = url,
+                                voiceDuration = duration
+                            )
+                        )
+                    }
                 )
             }
 
@@ -517,9 +560,11 @@ fun TripEntryEditor(
                             .clip(RoundedCornerShape(12.dp))
                     )
                 }
-                Button(onClick = onPickPhoto, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (entry.photoUrl.isBlank()) "Pick photo from gallery" else "Change photo")
-                }
+                TripPhotoActionBar(
+                    onOpenCamera = onTakePhoto,
+                    onImport = onPickPhoto,
+                    compact = true
+                )
             }
 
             if (isLocationOnlyEntry) {

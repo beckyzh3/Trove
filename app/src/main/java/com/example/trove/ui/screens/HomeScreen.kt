@@ -20,16 +20,18 @@ import androidx.compose.ui.unit.dp
 import com.example.trove.Trip
 import com.example.trove.R
 import com.example.trove.User
+import com.example.trove.displayCoverUrl
 import com.example.trove.ui.common.ImagePlaceholder
+import com.example.trove.ui.common.TripPhotoImage
 import com.example.trove.ui.common.TroveTopBar
 import com.example.trove.ui.theme.TroveTheme
 
 
-// INCOMPLETE JUST A PLACEHOLDER
 @Composable
 fun HomeScreen(
     user: User,
     friendsTrips: List<Trip>,
+    trendingTrips: List<Trip> = emptyList(),
     onProfile: () -> Unit,
     onSearch: () -> Unit,
     onExplore: () -> Unit,
@@ -121,6 +123,7 @@ fun HomeScreen(
 
             // Explore Section
             SectionHeader(title = "Explore")
+            val exploreCoverUrl = trendingTrips.firstOrNull()?.displayCoverUrl().orEmpty()
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -132,7 +135,15 @@ fun HomeScreen(
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    ImagePlaceholder(modifier = Modifier.fillMaxSize())
+                    if (exploreCoverUrl.isNotBlank()) {
+                        TripPhotoImage(
+                            url = exploreCoverUrl,
+                            modifier = Modifier.fillMaxSize(),
+                            contentDescription = "Explore destinations"
+                        )
+                    } else {
+                        ImagePlaceholder(modifier = Modifier.fillMaxSize())
+                    }
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -154,7 +165,7 @@ fun HomeScreen(
 
             // Trending Trips
             SectionHeader(title = "Trending Trips")
-            TrendingTripsList()
+            TrendingTripsList(trips = trendingTrips)
 
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -200,6 +211,16 @@ fun FriendsTripsList(
     onFriendClick: (String) -> Unit,
     onTripClick: (Trip) -> Unit
 ) {
+    if (trips.isEmpty()) {
+        Text(
+            text = "No friend trips yet — open Explore to discover public trips.",
+            modifier = Modifier.padding(horizontal = 16.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        return
+    }
+
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -309,8 +330,10 @@ fun FriendTripCard(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                ImagePlaceholder(
-                    modifier = Modifier.fillMaxSize()
+                TripPhotoImage(
+                    url = trip.displayCoverUrl(),
+                    modifier = Modifier.fillMaxSize(),
+                    contentDescription = trip.name
                 )
             }
         }
@@ -318,19 +341,26 @@ fun FriendTripCard(
 }
 
 @Composable
-fun TrendingTripsList() {
-    val dummyTrips = listOf(
-        Trip(name = "Summer in Italy", location = "Rome, Italy", likes = 120),
-        Trip(name = "Japan Adventure", location = "Tokyo, Japan", likes = 85),
-        Trip(name = "Swiss Alps Hike", location = "Zermatt, Switzerland", likes = 210)
-    )
+fun TrendingTripsList(trips: List<Trip>) {
+    if (trips.isEmpty()) {
+        Text(
+            text = "No public trips yet.",
+            modifier = Modifier.padding(horizontal = 16.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        return
+    }
 
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.height(240.dp)
     ) {
-        items(dummyTrips) { trip ->
+        items(
+            items = trips,
+            key = { it.id }
+        ) { trip ->
             TrendingTripCard(trip)
         }
     }
@@ -349,10 +379,12 @@ fun TrendingTripCard(trip: Trip) {
         )
     ) {
         Column {
-            ImagePlaceholder(
+            TripPhotoImage(
+                url = trip.displayCoverUrl(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp)
+                    .height(140.dp),
+                contentDescription = trip.name
             )
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(

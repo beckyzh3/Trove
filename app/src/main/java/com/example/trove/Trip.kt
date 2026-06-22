@@ -18,6 +18,7 @@ data class Trip(
     val coverPhotoUrl: String = "",
     val distanceKm: String = "",
     val likes: Int = 0,
+    val likedBy: List<String> = emptyList(),
     val isPublic: Boolean = true,
     val theme: String = "Classic"
 )
@@ -52,6 +53,7 @@ val TripSaver = mapSaver(
             "coverPhotoUrl" to trip.coverPhotoUrl,
             "distanceKm" to trip.distanceKm,
             "likes" to trip.likes,
+            "likedBy" to trip.likedBy,
             "isPublic" to trip.isPublic,
             "theme" to trip.theme
         )
@@ -92,6 +94,7 @@ val TripSaver = mapSaver(
             coverPhotoUrl = map["coverPhotoUrl"] as? String ?: "",
             distanceKm = map["distanceKm"] as? String ?: "",
             likes = map["likes"] as? Int ?: 0,
+            likedBy = (map["likedBy"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
             isPublic = map["isPublic"] as? Boolean ?: true,
             theme = map["theme"] as? String ?: "Classic"
         )

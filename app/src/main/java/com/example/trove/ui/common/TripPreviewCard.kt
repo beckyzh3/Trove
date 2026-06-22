@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.trove.Trip
+import com.example.trove.displayCoverUrl
 
 @Composable
 fun TripPreviewCard(
@@ -34,9 +36,20 @@ fun TripPreviewCard(
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            TripPhotoImage(
+                url = trip.displayCoverUrl(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp),
+                contentDescription = trip.name
+            )
+
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
 
             Text(
                 text = trip.name,
@@ -59,6 +72,7 @@ fun TripPreviewCard(
                 text = "${trip.likes} likes",
                 style = MaterialTheme.typography.bodySmall
             )
+            }
         }
     }
 }

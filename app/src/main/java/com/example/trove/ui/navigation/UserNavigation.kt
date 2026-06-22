@@ -22,6 +22,8 @@ import com.example.trove.R
 import com.example.trove.Trip
 import com.example.trove.User
 import com.example.trove.UserSaver
+import com.example.trove.data.BundledExploreTrips
+import com.example.trove.data.DemoTripSeeder
 import com.example.trove.data.TripRepository
 import com.example.trove.data.UserRepo
 import com.example.trove.ui.screens.ExpScreen
@@ -55,18 +57,56 @@ fun UserNavigation(
         mutableStateOf(listOf<Trip>())
     }
 
-    suspend fun refreshTrips() {
-        if (user.uid.isNotBlank()) {
-            trips = repository.getTripsWithEntries(user.uid)
-        }
-    }
-
-    LaunchedEffect(user.uid) {
-        refreshTrips()
+    var exploreTrips by remember {
+        mutableStateOf(listOf<Trip>())
     }
 
     var selectedTrip by remember {
         mutableStateOf<Trip?>(null)
+    }
+
+    suspend fun refreshTrips() {
+        if (user.uid.isBlank()) return
+        val fromFirestore = runCatching {
+            repository.getTripsWithEntries(user.uid)
+        }.getOrDefault(emptyList())
+        trips = BundledExploreTrips.applyAll(
+            context,
+            DemoTripSeeder.mergeLocalDemoTrip(fromFirestore, user.uid, user.name)
+        )
+    }
+
+    suspend fun refreshExploreTrips() {
+        val fromFirestore = runCatching {
+            repository.getPublicTrips()
+        }.getOrDefault(emptyList())
+        exploreTrips = BundledExploreTrips.applyAll(
+            context,
+            BundledExploreTrips.mergeWithFirestore(fromFirestore)
+        )
+    }
+
+    fun applyTripUpdate(updated: Trip) {
+        val trip = BundledExploreTrips.applyTrip(context, updated)
+        trips = trips.map { if (it.id == trip.id) trip else it }
+        exploreTrips = exploreTrips.map { if (it.id == trip.id) trip else it }
+        if (selectedTrip?.id == trip.id) {
+            selectedTrip = trip
+        }
+    }
+
+    LaunchedEffect(user.uid) {
+        if (user.uid.isNotBlank()) {
+            runCatching {
+                DemoTripSeeder.ensureDemoTrips(
+                    repository = repository,
+                    ownerId = user.uid,
+                    ownerName = user.name
+                )
+            }
+        }
+        refreshTrips()
+        refreshExploreTrips()
     }
 
     var selectedFriend by remember {
@@ -77,31 +117,8 @@ fun UserNavigation(
         mutableStateOf(listOf<Trip>())
     }
 
-    val alice = User(
-        uid = "alice-uid",
-        username = "alice",
-        name = "Alice Smith",
-        bio = "Collecting memories around the world.",
-        countriesList = mutableListOf("France", "Italy"),
-        friends = mutableListOf(),
-        numJournals = 1,
-        likes = 45
-    )
-
-    val aliceTrip = Trip(
-        id = "alice-journal-1",
-        ownerId = "alice-uid",
-        ownerName = "Alice Smith",
-        name = "Paris Getaway",
-        location = "Paris, France",
-        routeSummary = "Montmartre → Louvre → Eiffel Tower",
-        isPublic = true,
-        theme = "Autumn Breeze",
-        likes = 45
-    )
-
-    val friendUsers = listOf(alice)
-    val friendTrips = listOf(aliceTrip)
+    val friendUsers = listOf(BundledExploreTrips.demoFriendUser)
+    val friendTrips = exploreTrips.filter { it.ownerId != user.uid }
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -113,7 +130,7 @@ fun UserNavigation(
     suspend fun saveTripAndRefresh(trip: Trip) {
         isSavingTrip = true
         try {
-            repository.saveTripWithPhotos(context, trip)
+            repository.saveTripWithLocalMedia(context, trip)
             refreshTrips()
         } finally {
             isSavingTrip = false
@@ -197,13 +214,15 @@ fun UserNavigation(
                     HomeScreen(
                         user = user,
                         friendsTrips = friendTrips,
+                        trendingTrips = exploreTrips.sortedByDescending { it.likes },
                         onExplore = { navController.navigate(Explore) },
                         onTrips = { navController.navigate(TripList) },
                         onProfile = { navController.navigate(Profile) },
                         onSearch = { navController.navigate(Explore) },
                         onFriendClick = { friendUid ->
                             selectedFriend = friendUsers.find { it.uid == friendUid }
-                            selectedFriendTrips = friendTrips.filter { it.ownerId == friendUid }
+                                ?: BundledExploreTrips.friendProfile(friendUid, exploreTrips)
+                            selectedFriendTrips = exploreTrips.filter { it.ownerId == friendUid }
                             navController.navigate(FriendProfile)
                         },
                         onFriendTripClick = { clickedTrip ->
@@ -256,7 +275,7 @@ fun UserNavigation(
 
                 composable<Explore> {
                     ExpScreen(
-                        trips = trips + friendTrips,
+                        trips = exploreTrips,
                         onTripClick = { clickedTrip ->
                             selectedTrip = clickedTrip
                             navController.navigate(TripDetail)
@@ -280,7 +299,7 @@ fun UserNavigation(
                                     navController.popBackStack()
                                 } catch (e: Exception) {
                                     snackbarHostState.showSnackbar(
-                                        e.message ?: "Upload failed. Enable Firebase Storage in the console."
+                                        e.message ?: "Could not save trip."
                                     )
                                 }
                             }
@@ -298,13 +317,20 @@ fun UserNavigation(
                                 scope.launch {
                                     try {
                                         saveTripAndRefresh(updatedTrip)
-                                        val refreshed = repository.getTripsWithEntries(user.uid)
+                                        val refreshed = BundledExploreTrips.applyAll(
+                                            context,
+                                            DemoTripSeeder.mergeLocalDemoTrip(
+                                                repository.getTripsWithEntries(user.uid),
+                                                user.uid,
+                                                user.name
+                                            )
+                                        )
                                         trips = refreshed
                                         selectedTrip = refreshed.find { it.id == updatedTrip.id }
                                         navController.popBackStack()
                                     } catch (e: Exception) {
                                         snackbarHostState.showSnackbar(
-                                            e.message ?: "Upload failed. Enable Firebase Storage in the console."
+                                            e.message ?: "Could not save trip."
                                         )
                                     }
                                 }
@@ -356,11 +382,41 @@ fun UserNavigation(
 
                 composable<TripDetail> {
                     selectedTrip?.let { trip ->
+                        val onTripUpdated: (Trip) -> Unit = { updatedTrip ->
+                            scope.launch {
+                                try {
+                                    saveTripAndRefresh(updatedTrip)
+                                    selectedTrip = trips.find { it.id == updatedTrip.id }
+                                        ?: updatedTrip
+                                } catch (e: Exception) {
+                                    snackbarHostState.showSnackbar(
+                                        e.message
+                                            ?: "Could not save trip."
+                                    )
+                                }
+                            }
+                        }
+
                         TripDetailScreen(
                             trip = trip,
+                            currentUserId = user.uid,
                             isOwner = trip.ownerId == user.uid,
                             onBack = { navController.popBackStack() },
-                            onEditClick = { navController.navigate(EditTrip) }
+                            onEditClick = { navController.navigate(EditTrip) },
+                            onPhotoTaken = onTripUpdated,
+                            onVoiceMemoRecorded = onTripUpdated,
+                            onLikeToggle = {
+                                scope.launch {
+                                    try {
+                                        val updated = repository.toggleLike(trip.id, user.uid)
+                                        applyTripUpdate(updated)
+                                    } catch (e: Exception) {
+                                        snackbarHostState.showSnackbar(
+                                            e.message ?: "Could not update like"
+                                        )
+                                    }
+                                }
+                            }
                         )
                     }
                 }
@@ -413,7 +469,7 @@ fun UserNavigation(
                         ) {
                             CircularProgressIndicator()
                             Text(
-                                text = "Uploading photos…",
+                                text = "Saving trip…",
                                 modifier = Modifier.padding(top = 12.dp)
                             )
                         }
